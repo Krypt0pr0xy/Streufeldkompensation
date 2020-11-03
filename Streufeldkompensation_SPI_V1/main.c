@@ -56,48 +56,33 @@ int main(void)
 	UCB0CTL0 |= (UCCKPH + UCMSB + UCMST + UCSYNC); //Clock phase select, MSB first, Master MOde, 3-pin, 8-bit SPI master
 	UCB0CTL1 |= UCSSEL_2; // SMCLK
 	UCB0BR0 |= 0x02; // SMCLK / 2
-	//UCB0BR1 = 0; // no prescaler
+	UCB0BR1 = 0; // no prescaler
 	UCB0CTL1 &= ~UCSWRST; // **Initialize USCI state machine**
-
-	//00 000 00 0 11111111 11111111
-
-
 
 
     P1OUT &= (~BIT4); // Select Device
+
     while(!(IFG2 & UCB0TXIFG)); // USCI_B0 TX buffer ready?
-    UCB0TXBUF = 0x99; // Send data over SPI to Slave
-    while(!(IFG2 & UCB0TXIFG)); // USCI_B0 TX buffer ready?
-    UCB0TXBUF = 0x99; // Send data over SPI to Slave
-    while(!(IFG2 & UCB0TXIFG)); // USCI_B0 TX buffer ready?
-    UCB0TXBUF = 0x12; // Send data over SPI to Slave
+    UCB0TXBUF = 0x20; // Send data over SPI to Slave
+    //while(!(IFG2 & UCB0TXIFG)); // USCI_B0 TX buffer ready?
+    UCB0TXBUF = 0x20; // Send data over SPI to Slave
+    //while(!(IFG2 & UCB0TXIFG)); // USCI_B0 TX buffer ready?
+    UCB0TXBUF = 0x20; // Send data over SPI to Slave
+
     P1OUT |= (BIT4); // Unselect Device
 
     delay_ms(1000);
 
 
     /*
+    while(!(IFG2 & UCB0TXIFG)); // USCI_B0 TX buffer ready?
+    UCB0TXBUF = 0xFF; // Send data over SPI to Slave
+
     while (!(IFG2 & UCB0RXIFG)); // USCI_B0 RX Received?
     data = UCB0RXBUF; // Store received data
-    */
-
-    while(1);
-
-    /*
-     * CS LOW
-     *
-     * 0x12
-     * senden
-     * high
-     * senden
-     * low
-     * senden
-     * CS HIGH
-     *
-     *.
      */
 
-
+    while(1);
 
 
 
