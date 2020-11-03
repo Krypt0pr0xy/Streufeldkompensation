@@ -36,7 +36,6 @@ void config_CLK_1MHZ(void)
 
 void config_HW_UART(void)
 {
-
     P1SEL = BIT1 + BIT2 ; // P1.1 = RXD, P1.2=TXD
     P1SEL2 = BIT1 + BIT2 ; // P1.1 = RXD, P1.2=TXD
     UCA0CTL1 |= UCSSEL_2; // Use SMCLK
