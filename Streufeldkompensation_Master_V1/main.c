@@ -24,7 +24,8 @@ int main(void)
 	while(1)
 	{
 	    delay_ms(100);
-	 }
+	    check_interruptflag();
+	}
 }
 
 

@@ -14,7 +14,7 @@
 #define CS_Low (P1OUT &= (~BIT4))
 
 #define COMMANDCHAR '='
-
+#define interruptUARTRX 2
 //#################################################################
 //______Config_Function
 void config_CLK_1MHZ(void);
@@ -23,11 +23,14 @@ void config_standart_Ports();
 void config_HW_UART(void);
 void config_SPI(void);
 
+
+void check_interruptflag(void);
+
 //#################################################################
 //______UART_Function
-void UARTSendArray(unsigned char array_to_send[]);
+void UARTSendArray(char array_to_send[]);
 __interrupt void USCI0RX_ISR(void);
-
+void UARTreceiveArray(void);
 //#################################################################
 //______SPI_Function
 void SPISendByte(unsigned char input_char);
@@ -35,3 +38,6 @@ void SPISendData_1(unsigned char input_Byte);
 void SPISendData_2(unsigned char input_Byte1, unsigned char input_Byte2);
 void SPISendData_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3);
 unsigned char SPIReceiveByte();
+
+
+void CommandDecoder(char input_command[]);

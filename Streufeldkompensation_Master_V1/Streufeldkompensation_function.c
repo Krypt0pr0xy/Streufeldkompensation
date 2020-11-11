@@ -8,8 +8,7 @@
 
 #include <msp430.h>
 #include "Streufeldkompensation_function.h"
-
-
+volatile unsigned char interrupt_flag;
 //#################################################################
 //______Config_Function
 
@@ -90,10 +89,26 @@ void config_SPI(void)
 
 
 
+void check_interruptflag(void)
+{
+
+    switch(interrupt_flag)
+    {
+    case 2:
+        UARTreceiveArray();
+        break;
+    default:
+        break;
+    }
+
+    interrupt_flag = 0;
+}
+
+
 //#################################################################
 //______UART_Function
 
-void UARTSendArray(unsigned char array_to_send[])//send char array
+void UARTSendArray(char array_to_send[])//send char array
 {
     unsigned int array_length = strlen(array_to_send);//size of char
     unsigned int counter = 0;
@@ -105,11 +120,17 @@ void UARTSendArray(unsigned char array_to_send[])//send char array
 }
 
 
-
 #pragma vector=USCIAB0RX_VECTOR
 __interrupt void USCI0RX_ISR(void)
 {
-    unsigned char input_data[] = " ";//dummy buffer
+    interrupt_flag = 2;
+    //UARTreceiveArray();
+}
+
+
+void UARTreceiveArray(void)
+{
+    char input_data[] = " ";//dummy buffer
     unsigned char counter = 0;
 
     while((input_data[counter] = UCA0RXBUF) != '\r')//while fill buffer at specific place until Carriage return
@@ -118,10 +139,10 @@ __interrupt void USCI0RX_ISR(void)
         counter++;//Increase counter
     }
     input_data[counter+1] = '\0';//add end of array because c "string standard"
+    //CommandDecoder(input_data);
     UARTSendArray(input_data);//send input back
     UARTSendArray("\r");//ad a Carriage Return to the end
 }
-
 
 //#################################################################
 //______SPI_Function
@@ -170,18 +191,21 @@ unsigned char SPIReceiveByte()
 }
 
 
-void CommandDecoder(unsigned char input_command[])
+void CommandDecoder(char input_command[])
 {
-    unsigned int array_length = strlen(input_command);//size of char
-    unsigned int counter = 0;
-    unsigned char cmd_1[] = "";
-    unsigned char cmd_2[] = "";
-    unsigned char cmd_3[] = "";
-    unsigned char cmd_4[] = "";
+    UARTSendArray("tEST");
+    unsigned int array_length = sizeof(input_command);//size of char
+    unsigned char counter = 0;
+    unsigned char cmd_counter = 0;
+    char cmd_1[] = "hallo\r";
+    char cmd_2[] = "welt\r";
+    char cmd_3[] = "abc\r";
+    char cmd_4[] = "hi\r";
 
-    for(counter = 0; ((input_command[counter] != COMMANDCHAR) && counter <= array_length); counter++)
-    {
 
-    }
 
+    UARTSendArray(cmd_1);
+    UARTSendArray(cmd_2);
+    UARTSendArray(cmd_3);
+    UARTSendArray(cmd_4);
 }
