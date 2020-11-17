@@ -285,7 +285,6 @@ void CommandDecoder(char input_command[])
 
 void command_SET(char channel[], char value[], char out[])
 {
-
     /*Example for CH1 +/-10V 2.7k
      *
      * 1. MAX7301 P4 Einschalten für CS von DAC
@@ -293,7 +292,11 @@ void command_SET(char channel[], char value[], char out[])
      * 3. MAX7301 P4 Ausschalten für CS von DAC
      * 4. ADG1204 Decoder Einstellen und Pin Halten
      */
+    unsigned char CH = channel[2];// extracting numer from CH3 --> 3
+    float vout = 0.0;
+    vout = (float)atoi(value);
 
+    set_Voltage_MAX5719(CH, vout, 4.096);
 }
 
 void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_setIO(5,1)
@@ -404,10 +407,64 @@ void set_Voltage_MAX5719(unsigned char channel, float set_voltage, float ref_vol
 {
     set_voltage = set_voltage + (ref_voltage / 2);
     unsigned long out = 0;
-    out = set_voltage*(1.048.575/ref_voltage);
+    out = (unsigned long)(set_voltage*(1048575/ref_voltage)); // calulating the Bit value
+
+    //unsigned char byte3 = ((out >> 24) & 0xFF); //byte not used
+    unsigned char byte2 = ((out >> 16) & 0xFF) ;
+    unsigned char byte1 = ((out >> 8 ) & 0XFF);
+    unsigned char byte0 = (out & 0XFF);
 
 
+    switch(channel)//Sending to the correct Channel
+    {
+    case 1:
+        MAX7301_setPIN(CH1_CS,OFF);//CS off
+        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        MAX7301_setPIN(CH1_CS,ON);//CS on
+        break;
 
+    case 2:
+        MAX7301_setPIN(CH2_CS,OFF);//CS off
+        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        MAX7301_setPIN(CH2_CS,ON);//CS on
+        break;
+
+    case 3:
+        MAX7301_setPIN(CH3_CS,OFF);//CS off
+        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        MAX7301_setPIN(CH3_CS,ON);//CS on
+        break;
+
+    case 4:
+        MAX7301_setPIN(CH4_CS,OFF);//CS off
+        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        MAX7301_setPIN(CH4_CS,ON);//CS on
+        break;
+
+    case 5:
+        MAX7301_setPIN(CH5_CS,OFF);//CS off
+        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        MAX7301_setPIN(CH5_CS,ON);//CS on
+        break;
+
+    case 6:
+        MAX7301_setPIN(CH6_CS,OFF);//CS off
+        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        MAX7301_setPIN(CH6_CS,ON);//CS on
+        break;
+
+    case 7:
+        MAX7301_setPIN(CH7_CS,OFF);//CS off
+        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        MAX7301_setPIN(CH7_CS,ON);//CS on
+        break;
+
+    case 8:
+        MAX7301_setPIN(CH8_CS,OFF);//CS off
+        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        MAX7301_setPIN(CH8_CS,ON);//CS on
+        break;
+    }
 }
 
 
