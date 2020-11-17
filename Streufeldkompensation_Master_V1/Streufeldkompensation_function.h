@@ -96,8 +96,10 @@ void config__MAX7301(void);
 void UARTSendArray(char array_to_send[]);
 __interrupt void USCI0RX_ISR(void);
 void UARTreceiveArray(void);
+
 //#################################################################
 //______SPI_Function
+
 void SPISendByte(unsigned char input_char);
 void SPISendData_1(unsigned char input_Byte);
 void SPISendData_2(unsigned char input_Byte1, unsigned char input_Byte2);
