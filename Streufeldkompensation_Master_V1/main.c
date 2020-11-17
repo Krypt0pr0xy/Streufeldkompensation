@@ -20,7 +20,7 @@ int main(void)
 	config_HW_UART();
 	config_standart_Ports();
 	config_SPI();
-
+	config__MAX7301();
 	while(1)
 	{
 	    delay_ms(100);

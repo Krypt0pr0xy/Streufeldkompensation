@@ -10,6 +10,14 @@
 #include "Streufeldkompensation_function.h"
 int interrupt_flag;
 char input_data[] = " ";//dummy buffer
+
+
+char cmd_1[20] = "";
+char cmd_2[20] = "";
+char cmd_3[20] = "";
+char cmd_4[20] = "";
+
+
 //#################################################################
 //______Config_Function
 
@@ -107,6 +115,26 @@ void check_interruptflag(void)
 }
 
 
+void config__MAX7301(void)
+{
+    SPISendData_2(0x04,0x01);//Start Config
+    SPISendData_2(0x06,0xFF);//Input Mask Transition Register
+
+
+    //set Pin Output
+    SPISendData_2(0x09, 0x55);//P4-P7
+    SPISendData_2(0x0A, 0x55);//P8-P11
+    SPISendData_2(0x0B, 0x55);//P12-P15
+    SPISendData_2(0x0C, 0x55);//P16-P19
+    SPISendData_2(0x0D, 0x55);//P20-P23
+    SPISendData_2(0x0E, 0x55);//P24-P27
+    SPISendData_2(0x0F, 0x55);//P28-P31
+
+    SPISendData_2(0x04, 0x01);//Normal operation
+    SPISendData_2(0x04,0x81);//Configregister
+}
+
+
 //#################################################################
 //______UART_Function
 
@@ -189,57 +217,47 @@ unsigned char SPIReceiveByte()
 }
 
 
+//#################################################################
+//______Command Decoder SET=CH1=4353424=OUT1->SET, CH1, 4353424, OUT1
 void CommandDecoder(char input_command[])
 {
-    UARTSendArray("Command: \r\n");
+    UARTSendArray("Run Command Decoder\r\n");
     strcat(input_command, "\r\n");
     UARTSendArray(input_command);
 
+    unsigned char counter = 0;
+    unsigned char cmd_counter = 0;
 
-    unsigned int array_length = strlen(input_command);//size of char
-    unsigned char cmd_counter = 1;
-    unsigned char counter = 1;
-    unsigned char cmd_count_1 = 0;
-    unsigned char cmd_count_2 = 0;
-    unsigned char cmd_count_3 = 0;
-    unsigned char cmd_count_4 = 0;
     //SET=CH1=4353424=OUT1
 
-    char cmd_1[] = "";
-    char cmd_2[] = "";
-    char cmd_3[] = "";
-    char cmd_4[] = "";
-
-    for(counter = 0; counter<=array_length; counter++)
+    cmd_counter=0;//Reseting counter for out but array
+    for(counter = 0; input_command[counter] != COMMANDCHAR; counter++)//Searching to Special Symbol
     {
-        if(input_command[counter] != COMMANDCHAR)
-        {
-            switch(cmd_counter)
-            {
-                case 1:
-                    cmd_1[cmd_count_1] = input_command[counter];
-                    cmd_count_1++;
-                    break;
-
-                case 2:
-                    cmd_2[cmd_count_2] = input_command[counter];
-                    cmd_count_2++;
-                    break;
-
-                case 3:
-                    cmd_3[cmd_count_3] = input_command[counter];
-                    cmd_count_3++;
-                    break;
-
-                case 4:
-                    cmd_4[cmd_count_4] = input_command[counter];
-                    cmd_count_4++;
-                    break;
-
-            }
-        }
+        cmd_1[cmd_counter] = input_command[counter];//Copy char to comand char
         cmd_counter++;
     }
+
+    cmd_counter=0;//Reseting counter for out but array
+    for(counter = counter+1; input_command[counter] != COMMANDCHAR; counter++)//Searching to Special Symbol
+    {
+        cmd_2[cmd_counter] = input_command[counter];//Copy char to comand char
+        cmd_counter++;
+    }
+
+    cmd_counter=0;//Reseting counter for out but array
+    for(counter = counter+1; input_command[counter] != COMMANDCHAR; counter++)//Searching to Special Symbol
+    {
+        cmd_3[cmd_counter] = input_command[counter];//Copy char to comand char
+        cmd_counter++;
+    }
+
+    cmd_counter=0;//Reseting counter for out but array
+    for(counter = counter+1; input_command[counter] != COMMANDCHAR; counter++)//Searching to Special Symbol
+    {
+        cmd_4[cmd_counter] = input_command[counter];//Copy char to comand char
+        cmd_counter++;
+    }
+
 
     cmd_1[strlen(cmd_1)+1] = '\0';
     cmd_2[strlen(cmd_2)+1] = '\0';
@@ -256,4 +274,141 @@ void CommandDecoder(char input_command[])
     UARTSendArray(cmd_3);
     UARTSendArray(cmd_4);
     UARTSendArray("END \r\n");
+
+    if(strcmp(cmd_1, "SET") == 0)
+    {
+        command_SET(cmd_2, cmd_3, cmd_4);
+    }
+
 }
+
+
+void command_SET(char channel[], char value[], char out[])
+{
+
+    /*Example for CH1 +/-10V 2.7k
+     *
+     * 1. MAX7301 P4 Einschalten für CS von DAC
+     * 2. MAX5719 (DAC) Wert einstellen
+     * 3. MAX7301 P4 Ausschalten für CS von DAC
+     * 4. ADG1204 Decoder Einstellen und Pin Halten
+     */
+
+}
+
+void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_setIO(5,1)
+{
+    char state_checked = 0x00;
+
+    if(state == 0){state_checked = 0x00;}
+     else{state_checked = 0x01;}
+
+    port_pin = port_pin + 0x20;
+
+    SPISendData_2(port_pin,state_checked);
+/*
+    switch(port_pin)
+    {
+    case 4:
+            SPISendData_2(Port4,state_checked);
+            break;
+    case 5:
+            SPISendData_2(Port5,state_checked);
+            break;
+    case 6:
+            SPISendData_2(Port6,state_checked);
+            break;
+    case 7:
+            SPISendData_2(Port7,state_checked);
+            break;
+    case 8:
+            SPISendData_2(Port8,state_checked);
+            break;
+    case 9:
+            SPISendData_2(Port9,state_checked);
+            break;
+    case 10:
+            SPISendData_2(Port10,state_checked);
+            break;
+    case 11:
+            SPISendData_2(Port11,state_checked);
+            break;
+    case 12:
+            SPISendData_2(Port12,state_checked);
+            break;
+    case 13:
+            SPISendData_2(Port13,state_checked);
+            break;
+    case 14:
+            SPISendData_2(Port14,state_checked);
+            break;
+    case 15:
+            SPISendData_2(Port15,state_checked);
+            break;
+    case 16:
+            SPISendData_2(Port16,state_checked);
+            break;
+    case 17:
+            SPISendData_2(Port17,state_checked);
+            break;
+    case 18:
+            SPISendData_2(Port18,state_checked);
+            break;
+    case 19:
+            SPISendData_2(Port19,state_checked);
+            break;
+    case 20:
+            SPISendData_2(Port20,state_checked);
+            break;
+    case 21:
+            SPISendData_2(Port21,state_checked);
+            break;
+    case 22:
+            SPISendData_2(Port22,state_checked);
+            break;
+    case 23:
+            SPISendData_2(Port23,state_checked);
+            break;
+    case 24:
+            SPISendData_2(Port24,state_checked);
+            break;
+    case 25:
+            SPISendData_2(Port25,state_checked);
+            break;
+    case 26:
+            SPISendData_2(Port26,state_checked);
+            break;
+    case 27:
+            SPISendData_2(Port27,state_checked);
+            break;
+    case 28:
+            SPISendData_2(Port28,state_checked);
+            break;
+    case 29:
+            SPISendData_2(Port29,state_checked);
+            break;
+
+    case 30:
+            SPISendData_2(Port30,state_checked);
+            break;
+    case 31:
+            SPISendData_2(Port31,state_checked);
+            break;
+    }
+    */
+
+
+}
+
+void set_Voltage_MAX5719(unsigned char channel, float set_voltage, float ref_voltage)//Only for symetric
+{
+    set_voltage = set_voltage + (ref_voltage / 2);
+    unsigned long out = 0;
+    out = set_voltage*(1.048.575/ref_voltage);
+
+
+
+}
+
+
+
