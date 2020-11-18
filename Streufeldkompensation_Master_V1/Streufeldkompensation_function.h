@@ -50,7 +50,7 @@
 #define Port30 0x3E
 #define Port31 0x3F
 
-
+//      Name  Port Pin
 #define CH1_CS 4
 #define CH1_A0 5
 #define CH1_A1 6
@@ -91,6 +91,8 @@ void check_interruptflag(void);
 
 
 void config__MAX7301(void);
+
+void setup_MAX7301pins(void);
 //#################################################################
 //______UART_Function
 void UARTSendArray(char array_to_send[]);

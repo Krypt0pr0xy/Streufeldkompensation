@@ -21,6 +21,10 @@ int main(void)
 	config_standart_Ports();
 	config_SPI();
 	config__MAX7301();
+
+	setup_MAX7301pins();
+
+
 	while(1)
 	{
 	    delay_ms(100);

@@ -135,6 +135,20 @@ void config__MAX7301(void)
 }
 
 
+void setup_MAX7301pins(void)
+{
+    MAX7301_setPIN(CH1_CS,ON);//CS on
+    MAX7301_setPIN(CH2_CS,ON);//CS on
+    MAX7301_setPIN(CH3_CS,ON);//CS on
+    MAX7301_setPIN(CH4_CS,ON);//CS on
+    MAX7301_setPIN(CH5_CS,ON);//CS on
+    MAX7301_setPIN(CH6_CS,ON);//CS on
+    MAX7301_setPIN(CH7_CS,ON);//CS on
+    MAX7301_setPIN(CH8_CS,ON);//CS on
+
+
+}
+
 //#################################################################
 //______UART_Function
 
@@ -297,6 +311,117 @@ void command_SET(char channel[], char value[], char out[])
     vout = (float)atoi(value);
 
     set_Voltage_MAX5719(CH, vout, 4.096);
+
+    unsigned char out_mode = (unsigned char)atoi(out);
+
+
+    switch(CH)
+    {
+    case 1:
+        if(out_mode == 1)//check if mode is +/- 1V
+        {
+            MAX7301_setPIN(CH1_A0,OFF);
+            MAX7301_setPIN(CH1_A1,ON);
+        }
+        else if(out_mode == 10)//check if mode is +/- 10V
+        {
+            MAX7301_setPIN(CH1_A0,OFF);
+            MAX7301_setPIN(CH1_A1,OFF);
+        }
+        break;
+
+    case 2:
+        if(out_mode == 1)//check if mode is +/- 1V
+        {
+            MAX7301_setPIN(CH2_A0,OFF);
+            MAX7301_setPIN(CH2_A1,ON);
+        }
+        else if(out_mode == 10)//check if mode is +/- 10V
+        {
+            MAX7301_setPIN(CH2_A0,OFF);
+            MAX7301_setPIN(CH2_A1,OFF);
+        }
+        break;
+
+    case 3:
+        if(out_mode == 1)//check if mode is +/- 1V
+        {
+            MAX7301_setPIN(CH3_A0,OFF);
+            MAX7301_setPIN(CH3_A1,ON);
+        }
+        else if(out_mode == 10)//check if mode is +/- 10V
+        {
+            MAX7301_setPIN(CH3_A0,OFF);
+            MAX7301_setPIN(CH3_A1,OFF);
+        }
+        break;
+
+    case 4:
+        if(out_mode == 1)//check if mode is +/- 1V
+        {
+            MAX7301_setPIN(CH4_A0,OFF);
+            MAX7301_setPIN(CH4_A1,ON);
+        }
+        else if(out_mode == 10)//check if mode is +/- 10V
+        {
+            MAX7301_setPIN(CH4_A0,OFF);
+            MAX7301_setPIN(CH4_A1,OFF);
+        }
+        break;
+
+    case 5:
+        if(out_mode == 1)//check if mode is +/- 1V
+        {
+            MAX7301_setPIN(CH5_A0,OFF);
+            MAX7301_setPIN(CH5_A1,ON);
+        }
+        else if(out_mode == 10)//check if mode is +/- 10V
+        {
+            MAX7301_setPIN(CH5_A0,OFF);
+            MAX7301_setPIN(CH5_A1,OFF);
+        }
+        break;
+
+    case 6:
+        if(out_mode == 1)//check if mode is +/- 1V
+        {
+            MAX7301_setPIN(CH6_A0,OFF);
+            MAX7301_setPIN(CH6_A1,ON);
+        }
+        else if(out_mode == 10)//check if mode is +/- 10V
+        {
+            MAX7301_setPIN(CH6_A0,OFF);
+            MAX7301_setPIN(CH6_A1,OFF);
+        }
+        break;
+
+    case 7:
+        if(out_mode == 1)//check if mode is +/- 1V
+        {
+            MAX7301_setPIN(CH7_A0,OFF);
+            MAX7301_setPIN(CH7_A1,ON);
+        }
+        else if(out_mode == 10)//check if mode is +/- 10V
+        {
+            MAX7301_setPIN(CH7_A0,OFF);
+            MAX7301_setPIN(CH7_A1,OFF);
+        }
+        break;
+
+    case 8:
+        if(out_mode == 1)//check if mode is +/- 1V
+        {
+            MAX7301_setPIN(CH8_A0,OFF);
+            MAX7301_setPIN(CH8_A1,ON);
+        }
+        else if(out_mode == 10)//check if mode is +/- 10V
+        {
+            MAX7301_setPIN(CH8_A0,OFF);
+            MAX7301_setPIN(CH8_A1,OFF);
+        }
+        break;
+
+    }
 }
 
 void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_setIO(5,1)
@@ -309,97 +434,6 @@ void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_s
     port_pin = port_pin + 0x20;
 
     SPISendData_2(port_pin,state_checked);
-/*
-    switch(port_pin)
-    {
-    case 4:
-            SPISendData_2(Port4,state_checked);
-            break;
-    case 5:
-            SPISendData_2(Port5,state_checked);
-            break;
-    case 6:
-            SPISendData_2(Port6,state_checked);
-            break;
-    case 7:
-            SPISendData_2(Port7,state_checked);
-            break;
-    case 8:
-            SPISendData_2(Port8,state_checked);
-            break;
-    case 9:
-            SPISendData_2(Port9,state_checked);
-            break;
-    case 10:
-            SPISendData_2(Port10,state_checked);
-            break;
-    case 11:
-            SPISendData_2(Port11,state_checked);
-            break;
-    case 12:
-            SPISendData_2(Port12,state_checked);
-            break;
-    case 13:
-            SPISendData_2(Port13,state_checked);
-            break;
-    case 14:
-            SPISendData_2(Port14,state_checked);
-            break;
-    case 15:
-            SPISendData_2(Port15,state_checked);
-            break;
-    case 16:
-            SPISendData_2(Port16,state_checked);
-            break;
-    case 17:
-            SPISendData_2(Port17,state_checked);
-            break;
-    case 18:
-            SPISendData_2(Port18,state_checked);
-            break;
-    case 19:
-            SPISendData_2(Port19,state_checked);
-            break;
-    case 20:
-            SPISendData_2(Port20,state_checked);
-            break;
-    case 21:
-            SPISendData_2(Port21,state_checked);
-            break;
-    case 22:
-            SPISendData_2(Port22,state_checked);
-            break;
-    case 23:
-            SPISendData_2(Port23,state_checked);
-            break;
-    case 24:
-            SPISendData_2(Port24,state_checked);
-            break;
-    case 25:
-            SPISendData_2(Port25,state_checked);
-            break;
-    case 26:
-            SPISendData_2(Port26,state_checked);
-            break;
-    case 27:
-            SPISendData_2(Port27,state_checked);
-            break;
-    case 28:
-            SPISendData_2(Port28,state_checked);
-            break;
-    case 29:
-            SPISendData_2(Port29,state_checked);
-            break;
-
-    case 30:
-            SPISendData_2(Port30,state_checked);
-            break;
-    case 31:
-            SPISendData_2(Port31,state_checked);
-            break;
-    }
-    */
-
 
 }
 
