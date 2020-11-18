@@ -108,9 +108,15 @@ void SPISendData_2(unsigned char input_Byte1, unsigned char input_Byte2);
 void SPISendData_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3);
 unsigned char SPIReceiveByte();
 
-
+//#################################################################
+//______Command Decoder
 void CommandDecoder(char input_command[]);
 void command_SET(char channel[], char value[], char out[]);
 
+//#################################################################
+//______MAX7301 GPIO expander
 void MAX7301_setPIN(unsigned char port_pin, unsigned char state);
+
+//#################################################################
+//______MAX5719 DAC
 void set_Voltage_MAX5719(unsigned char channel, float set_voltage);

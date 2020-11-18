@@ -103,7 +103,7 @@ void check_interruptflag(void)
     {
         case interruptUARTRX:
             UARTSendArray(input_data);//send input back
-            UARTSendArray("\r\n");//ad a Carriage Return to the end
+            UARTSendArray("\r\n");//add a Carriage Return to the end
             CommandDecoder(input_data);
             break;
         default:
@@ -221,7 +221,7 @@ void SPISendByte(unsigned char input_Byte)//send SPI Byte Directly
 void SPISendData_1(unsigned char input_Byte)//Send SPI Data with Chip Select an timing for 1 Byte
 {
     CS_Low;
-    SPISendByte(input_Byte);
+    SPISendByte(input_Byte);//Send first Byte
     __delay_cycles(20);//NOP
     CS_High;
 }
@@ -229,9 +229,9 @@ void SPISendData_1(unsigned char input_Byte)//Send SPI Data with Chip Select an 
 void SPISendData_2(unsigned char input_Byte1, unsigned char input_Byte2)//Send SPI Data with Chip Select an timing for 2 Byte
 {
     CS_Low;
-    SPISendByte(input_Byte1);
+    SPISendByte(input_Byte1);//Send first Byte
     __delay_cycles(8);//NOP
-    SPISendByte(input_Byte2);
+    SPISendByte(input_Byte2);//Send second Byte
     __delay_cycles(20);//NOP
     CS_High;
 }
@@ -239,11 +239,11 @@ void SPISendData_2(unsigned char input_Byte1, unsigned char input_Byte2)//Send S
 void SPISendData_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3)//Send SPI Data with Chip Select an timing for 3 Byte
 {
     CS_Low;
-    SPISendByte(input_Byte1);
+    SPISendByte(input_Byte1);//Send first Byte
     __delay_cycles(8);//NOP
-    SPISendByte(input_Byte2);
+    SPISendByte(input_Byte2);//Send second Byte
     __delay_cycles(8);//NOP
-    SPISendByte(input_Byte3);
+    SPISendByte(input_Byte3);//Send third Byte
     __delay_cycles(20);//NOP
     CS_High;
 }
@@ -448,7 +448,6 @@ void command_SET(char channel[], char value[], char out[])
             MAX7301_setPIN(CH8_A1,OFF);
         }
         break;
-
     }
 }
 
@@ -462,7 +461,7 @@ void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_s
     port_pin = port_pin + 0x20;//add offset (for more information datasheet)
     if((port_pin >= 0x20)&&(port_pin <=0x3F))//check if pin is avaible
     {
-        SPISendData_2(port_pin,state_checked);
+        SPISendData_2(port_pin,state_checked);//Send two Bytes over SPI
     }
 
 

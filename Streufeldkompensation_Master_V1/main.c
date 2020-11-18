@@ -14,6 +14,7 @@
 int main(void)
 {
 	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
+	//all Config functions
 	config_CLK_1MHZ();
 	config_HW_UART();
 	config_standart_Ports();
