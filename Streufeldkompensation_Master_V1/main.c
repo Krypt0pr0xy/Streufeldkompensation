@@ -1,13 +1,11 @@
 /*
  * Titel: Haubt Programm für Streufeldkompensation
- * Cyrill Wyler 10.11.2020
+ * ETH Zürich Hönggerberg 10.11.2020
  */
 //#################################################################
 //______Header Files
 #include <msp430.h> 
 #include "Streufeldkompensation_function.h"
-//#################################################################
-
 
 
 //#################################################################

@@ -1,8 +1,7 @@
 /*
  * Streufeldkompensation_function.h
  *
- *  Created on: 10.11.2020
- *      Author: Cyrill Wyller
+ * ETH Zürich Hönggerberg 10.11.2020
  */
 
 #ifndef STREUFELDKOMPENSATION_FUNCTION_H_
@@ -19,6 +18,7 @@
 #define COMMANDCHAR '='
 #define interruptUARTRX 2
 
+#define vref 4.096
 //#################################################################
 //______Pin Defines For Max7301
 #define Port4 0x24
@@ -50,7 +50,7 @@
 #define Port30 0x3E
 #define Port31 0x3F
 
-//      Name  Port Pin
+//______Name  Port Pin
 #define CH1_CS 4
 #define CH1_A0 5
 #define CH1_A1 6
@@ -113,4 +113,4 @@ void CommandDecoder(char input_command[]);
 void command_SET(char channel[], char value[], char out[]);
 
 void MAX7301_setPIN(unsigned char port_pin, unsigned char state);
-void set_Voltage_MAX5719(unsigned char channel, float set_voltage, float ref_voltage);
+void set_Voltage_MAX5719(unsigned char channel, float set_voltage);

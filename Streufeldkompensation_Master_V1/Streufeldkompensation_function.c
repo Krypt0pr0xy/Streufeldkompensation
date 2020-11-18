@@ -1,8 +1,7 @@
 /*
  * Streufeldkompensation_function.c
  *
- *  Created on: 10.11.2020
- *      Author: Cyrill Wyller
+ * ETH Zürich Hönggerberg 10.11.2020
  */
 
 
@@ -146,6 +145,30 @@ void setup_MAX7301pins(void)
     MAX7301_setPIN(CH7_CS,ON);//CS on
     MAX7301_setPIN(CH8_CS,ON);//CS on
 
+    //Set all A0 /A1 to OFF
+    MAX7301_setPIN(CH1_A0,OFF);
+    MAX7301_setPIN(CH1_A1,OFF);
+
+    MAX7301_setPIN(CH2_A0,OFF);
+    MAX7301_setPIN(CH2_A1,OFF);
+
+    MAX7301_setPIN(CH3_A0,OFF);
+    MAX7301_setPIN(CH3_A1,OFF);
+
+    MAX7301_setPIN(CH4_A0,OFF);
+    MAX7301_setPIN(CH4_A1,OFF);
+
+    MAX7301_setPIN(CH5_A0,OFF);
+    MAX7301_setPIN(CH5_A1,OFF);
+
+    MAX7301_setPIN(CH6_A0,OFF);
+    MAX7301_setPIN(CH6_A1,OFF);
+
+    MAX7301_setPIN(CH7_A0,OFF);
+    MAX7301_setPIN(CH7_A1,OFF);
+
+    MAX7301_setPIN(CH8_A0,OFF);
+    MAX7301_setPIN(CH8_A1,OFF);
 
 }
 
@@ -233,6 +256,11 @@ unsigned char SPIReceiveByte()
 
 //#################################################################
 //______Command Decoder SET=CH1=4353424=OUT1->SET, CH1, 4353424, OUT1
+/*
+ * First command can only be set
+ * Second commadn sets the channel from CH1-CH8
+ * Third command gives the Voltage value from -4 to 4
+ */
 void CommandDecoder(char input_command[])
 {
     UARTSendArray("Run Command Decoder\r\n");
@@ -272,17 +300,17 @@ void CommandDecoder(char input_command[])
         cmd_counter++;
     }
 
-
+    //ending the char array with a end Symbol
     cmd_1[strlen(cmd_1)+1] = '\0';
     cmd_2[strlen(cmd_2)+1] = '\0';
     cmd_3[strlen(cmd_3)+1] = '\0';
     cmd_4[strlen(cmd_4)+1] = '\0';
-
+/*
     strcat(cmd_1, "\r\n");
     strcat(cmd_2, "\r\n");
     strcat(cmd_3, "\r\n");
     strcat(cmd_4, "\r\n");
-
+*/
     UARTSendArray(cmd_1);
     UARTSendArray(cmd_2);
     UARTSendArray(cmd_3);
@@ -310,7 +338,7 @@ void command_SET(char channel[], char value[], char out[])
     float vout = 0.0;
     vout = (float)atoi(value);
 
-    set_Voltage_MAX5719(CH, vout, 4.096);
+    set_Voltage_MAX5719(CH, vout);
 
     unsigned char out_mode = (unsigned char)atoi(out);
 
@@ -428,28 +456,36 @@ void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_s
 {
     char state_checked = 0x00;
 
-    if(state == 0){state_checked = 0x00;}
+    if(state == 0){state_checked = 0x00;}//check if state is bigger than 1
      else{state_checked = 0x01;}
 
-    port_pin = port_pin + 0x20;
+    port_pin = port_pin + 0x20;//add offset (for more information datasheet)
+    if((port_pin >= 0x20)&&(port_pin <=0x3F))//check if pin is avaible
+    {
+        SPISendData_2(port_pin,state_checked);
+    }
 
-    SPISendData_2(port_pin,state_checked);
 
 }
 
-void set_Voltage_MAX5719(unsigned char channel, float set_voltage, float ref_voltage)//Only for symetric
+void set_Voltage_MAX5719(unsigned char channel, float set_voltage)//Only for symetric
 {
-    set_voltage = set_voltage + (ref_voltage / 2);
+    if((set_voltage >= vref) || (set_voltage <= (vref*-1)))//check if Voltage input is in the range of vref
+    {
+        set_voltage = 0.0;
+    }
+
+    set_voltage = set_voltage + (vref / 2);
     unsigned long out = 0;
-    out = (unsigned long)(set_voltage*(1048575/ref_voltage)); // calulating the Bit value
+    out = (unsigned long)(set_voltage*(1048575/vref)); // calulating the Bit value
 
 
     //unsigned char byte3 = ((out >> 24) & 0xFF); //byte not used
-    unsigned char byte2 = ((out >> 16) & 0xFF) ;
-    unsigned char byte1 = ((out >> 8 ) & 0XFF);
-    unsigned char byte0 = (out & 0XFF);
+    unsigned char byte2 = ((out >> 16) & 0xFF);//last byte from the long value
+    unsigned char byte1 = ((out >> 8 ) & 0XFF);//middle byte from the long value
+    unsigned char byte0 = (out & 0XFF);//first byte from the long value
 
-
+    //Sending MSP First last 4 Bits are ignored
     switch(channel)//Sending to the correct Channel
     {
     case 1:
