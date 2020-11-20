@@ -13,7 +13,7 @@
 
 int main(void)
 {
-	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
+    WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
 	//all Config functions
 	config_CLK_1MHZ();
 	config_HW_UART();
@@ -27,7 +27,9 @@ int main(void)
 	while(1)
 	{
 	    delay_ms(100);
+	    //UARTSendArray("Hallo Welt \r\n");//add a Carriage Return to the end
 	    check_interruptflag();
+
 	}
 }
 

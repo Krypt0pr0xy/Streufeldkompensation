@@ -7,8 +7,9 @@
 
 #include <msp430.h>
 #include "Streufeldkompensation_function.h"
+#include <string.h>
 int interrupt_flag;
-char input_data[] = " ";//dummy buffer
+char input_data[254] = " ";//dummy buffer
 
 
 char cmd_1[20] = "";
@@ -68,6 +69,10 @@ void config_HW_UART(void)
     UCA0CTL1 &= ~UCSWRST; // Initialize USCI state machine
     IE2 |= UCA0RXIE; // Enable USCI_A0 RX interrupt
     __bis_SR_register(GIE); //interrupts enabled
+
+    while(UCA0TXBUF > 0);
+    while(UCA0RXBUF > 0);
+
 }
 
 
@@ -103,8 +108,10 @@ void check_interruptflag(void)
     switch(interrupt_flag)
     {
         case interruptUARTRX:
+            UARTSendArray("Received\r\n");//add a Carriage Return to the end
             UARTSendArray(input_data);//send input back
             UARTSendArray("\r\n");//add a Carriage Return to the end
+            delay_ms(100);
             CommandDecoder(input_data);
             break;
         default:
@@ -192,6 +199,7 @@ void UARTSendArray(char array_to_send[])//send char array
 __interrupt void USCI0RX_ISR(void)
 {
     interrupt_flag = interruptUARTRX;
+    while(!(UC0IFG & UCA0RXIFG));//Wait for buffer
     UARTreceiveArray();
 }
 
@@ -199,13 +207,20 @@ __interrupt void USCI0RX_ISR(void)
 void UARTreceiveArray(void)
 {
     unsigned char counter = 0;
-
+    char dummybuffer;
     while((input_data[counter] = UCA0RXBUF) != '\r')//while fill buffer at specific place until Carriage return
     {
         while(!(UC0IFG & UCA0RXIFG));//Wait for buffer
         counter++;//Increase counter
     }
     input_data[counter+1] = '\0';//add end of array because c "string standard"
+
+    while(UCA0RXBUF != 0x0D)
+    {
+        dummybuffer = UCA0RXBUF;
+        while(!(UC0IFG & UCA0RXIFG));//Wait for buffer
+    }
+
 }
 
 //#################################################################
@@ -265,43 +280,50 @@ unsigned char SPIReceiveByte()
 void CommandDecoder(char input_command[])
 {
     UARTSendArray("Run Command Decoder\r\n");
-    strcat(input_command, "\r\n");
-    UARTSendArray(input_command);
-
+    unsigned char clearCounter=0;
+    for(clearCounter = 0; clearCounter <=19;clearCounter++)
+    {
+        cmd_1[clearCounter] = '\0';
+        cmd_2[clearCounter] = '\0';
+        cmd_3[clearCounter] = '\0';
+        cmd_4[clearCounter] = '\0';
+    }
+    unsigned char length = strlen(input_command);
     unsigned char counter = 0;
     unsigned char cmd_counter = 0;
 
     //SET=CH1=4353424=OUT1
 
     cmd_counter=0;//Reseting counter for out but array
-    for(counter = 0; input_command[counter] != COMMANDCHAR; counter++)//Searching to Special Symbol
+    for(counter = 0; (input_command[counter] != COMMANDCHAR) && (counter <= length); counter++)//Searching to Special Symbol
     {
         cmd_1[cmd_counter] = input_command[counter];//Copy char to comand char
         cmd_counter++;
     }
 
     cmd_counter=0;//Reseting counter for out but array
-    for(counter = counter+1; input_command[counter] != COMMANDCHAR; counter++)//Searching to Special Symbol
+    for(counter = counter+1; (input_command[counter] != COMMANDCHAR) && (counter <= length); counter++)//Searching to Special Symbol
     {
         cmd_2[cmd_counter] = input_command[counter];//Copy char to comand char
         cmd_counter++;
     }
 
     cmd_counter=0;//Reseting counter for out but array
-    for(counter = counter+1; input_command[counter] != COMMANDCHAR; counter++)//Searching to Special Symbol
+    for(counter = counter+1; (input_command[counter] != COMMANDCHAR) && (counter <= length); counter++)//Searching to Special Symbol
     {
         cmd_3[cmd_counter] = input_command[counter];//Copy char to comand char
         cmd_counter++;
     }
 
     cmd_counter=0;//Reseting counter for out but array
-    for(counter = counter+1; input_command[counter] != COMMANDCHAR; counter++)//Searching to Special Symbol
+    for(counter = counter+1; (input_command[counter] != COMMANDCHAR) && (counter <= length); counter++)//Searching to Special Symbol
     {
         cmd_4[cmd_counter] = input_command[counter];//Copy char to comand char
         cmd_counter++;
     }
 
     //ending the char array with a end Symbol
+
     cmd_1[strlen(cmd_1)+1] = '\0';
     cmd_2[strlen(cmd_2)+1] = '\0';
     cmd_3[strlen(cmd_3)+1] = '\0';
@@ -313,14 +335,29 @@ void CommandDecoder(char input_command[])
     strcat(cmd_4, "\r\n");
 */
     UARTSendArray(cmd_1);
+    UARTSendArray("\r\n");
     UARTSendArray(cmd_2);
+    UARTSendArray("\r\n");
     UARTSendArray(cmd_3);
+    UARTSendArray("\r\n");
     UARTSendArray(cmd_4);
+    UARTSendArray("\r\n");
     UARTSendArray("END \r\n");
 
     if(strcmp(cmd_1, "SET") == 0)
     {
         command_SET(cmd_2, cmd_3, cmd_4);
+    }
+
+
+    if(strcmp(cmd_1, "ON\0") == 0)
+    {
+        MAX7301_setPIN(22,ON);
+    }
+
+    if(strcmp(cmd_1, "OFF\0") == 0)
+    {
+        MAX7301_setPIN(22,OFF);
     }
 
 }
@@ -335,7 +372,7 @@ void command_SET(char channel[], char value[], char out[])
      * 3. MAX7301 P4 Ausschalten für CS von DAC
      * 4. ADG1204 Decoder Einstellen und Pin Halten
      */
-    unsigned char CH = channel[2];// extracting numer from CH3 --> 3
+    unsigned char CH = channel[2];// extracting nummer from CH3 --> 3
     float vout = 0.0;
     vout = (float)atoi(value);
 
