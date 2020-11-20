@@ -54,6 +54,7 @@ void config_HW_UART(void)
     /*
      * P1.1 --> RXD
      * P1.2 --> TXD
+     *
      */
 
     P1SEL |= (BIT1 + BIT2); // P1.1 = RXD, P1.2=TXD
