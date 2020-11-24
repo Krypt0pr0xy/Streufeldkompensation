@@ -108,9 +108,9 @@ void check_interruptflag(void)
     switch(interrupt_flag)
     {
         case interruptUARTRX:
-            UARTSendArray("Received\r\n");//add a Carriage Return to the end
+            UARTSendArray("\r\nReceived: \t");//add a Carriage Return to the end
             UARTSendArray(input_data);//send input back
-            UARTSendArray("\r\n");//add a Carriage Return to the end
+            UARTSendArray("\r\n\r\n");//add a Carriage Return to the end
             delay_ms(100);
             CommandDecoder(input_data);
             break;
@@ -192,6 +192,7 @@ void UARTSendArray(char array_to_send[])//send char array
         while(!(IFG2 & UCA0TXIFG));//Unload all data first from Buffer
         UCA0TXBUF = array_to_send[counter];//Take array at specific place
     }
+    delay_ms(10);
 }
 
 
@@ -279,7 +280,7 @@ unsigned char SPIReceiveByte()
  */
 void CommandDecoder(char input_command[])
 {
-    UARTSendArray("Run Command Decoder\r\n");
+    UARTSendArray("Command Decoder:\r\n");
     unsigned char clearCounter=0;
     for(clearCounter = 0; clearCounter <=19;clearCounter++)
     {
@@ -328,37 +329,48 @@ void CommandDecoder(char input_command[])
     cmd_2[strlen(cmd_2)+1] = '\0';
     cmd_3[strlen(cmd_3)+1] = '\0';
     cmd_4[strlen(cmd_4)+1] = '\0';
-/*
+
+    /*
     strcat(cmd_1, "\r\n");
     strcat(cmd_2, "\r\n");
     strcat(cmd_3, "\r\n");
     strcat(cmd_4, "\r\n");
 */
+    UARTSendArray(" * Command 1: \t");
     UARTSendArray(cmd_1);
     UARTSendArray("\r\n");
+    UARTSendArray(" * Command 2: \t");
     UARTSendArray(cmd_2);
     UARTSendArray("\r\n");
+    UARTSendArray(" * Command 3: \t");
     UARTSendArray(cmd_3);
     UARTSendArray("\r\n");
+    UARTSendArray(" * Command 4: \t");
     UARTSendArray(cmd_4);
-    UARTSendArray("\r\n");
-    UARTSendArray("END \r\n");
+    UARTSendArray("\r\n\r\n");
 
-    if(strcmp(cmd_1, "SET") == 0)
+    if(strcmp(cmd_1, "SET\0") == 0)
     {
         command_SET(cmd_2, cmd_3, cmd_4);
     }
 
 
-    if(strcmp(cmd_1, "ON\0") == 0)
+    if(strcmp(cmd_1, "Help\0") == 0)
     {
-        MAX7301_setPIN(22,ON);
+        UARTSendArray("SET=CH1=2.5=OUT1\r\n");
+        UARTSendArray("----------------\r\n");
+        UARTSendArray("SET\r\n");
+        UARTSendArray("^^^=Command SET\r\n");
+        UARTSendArray("    CH1\r\n");
+        UARTSendArray("    ^^^=Select Channel\r\n");
+        UARTSendArray("        2.5\r\n");
+        UARTSendArray("        ^^^=Select Output Voltage(-4v <-> +4V)\r\n");
+        UARTSendArray("            OUT1\r\n");
+        UARTSendArray("            ^^^=Select Output Stage 1 or 10 -> +/-1V or +/-10V \r\n");
+        UARTSendArray("###############################################################\r\n");
     }
 
-    if(strcmp(cmd_1, "OFF\0") == 0)
-    {
-        MAX7301_setPIN(22,OFF);
-    }
+
 
 }
 
@@ -373,14 +385,33 @@ void command_SET(char channel[], char value[], char out[])
      * 4. ADG1204 Decoder Einstellen und Pin Halten
      */
     unsigned char CH = channel[2];// extracting nummer from CH3 --> 3
+    UARTSendArray("######Test\r\n");
+    UARTSendArray(CH);
     float vout = 0.0;
     vout = (float)atoi(value);
 
     set_Voltage_MAX5719(CH, vout);
+    unsigned char out_mode = 1;
 
-    unsigned char out_mode = (unsigned char)atoi(out);
+    if(strcmp(out, "OUT1\0") == 0)
+    {
+        out_mode = 1;
+    }
+    else
+    {
+        out_mode = 10;
+    }
 
 
+    UARTSendArray("SET CH:   \t\t");
+    UARTSendArray(channel);
+    UARTSendArray("\r\n");
+    UARTSendArray("SET Voltage:\t");
+    UARTSendArray(value);
+    UARTSendArray("\r\n");
+    UARTSendArray("SET Output:\t");
+    UARTSendArray(out);
+    UARTSendArray("\r\n");
     switch(CH)
     {
     case 1:
@@ -486,6 +517,9 @@ void command_SET(char channel[], char value[], char out[])
             MAX7301_setPIN(CH8_A1,OFF);
         }
         break;
+    default:
+        UARTSendArray("-->Wrong Channel\r\n");
+        break;
     }
 }
 
@@ -510,6 +544,7 @@ void set_Voltage_MAX5719(unsigned char channel, float set_voltage)//Only for sym
     if((set_voltage >= vref) || (set_voltage <= (vref*-1)))//check if Voltage input is in the range of vref
     {
         set_voltage = 0.0;
+        UARTSendArray("-->Wrong Voltage set to 0.0\r\n");
     }
 
     set_voltage = set_voltage + (vref / 2);
@@ -571,6 +606,10 @@ void set_Voltage_MAX5719(unsigned char channel, float set_voltage)//Only for sym
         MAX7301_setPIN(CH8_CS,OFF);//CS off
         SPISendData_3(byte2, byte1, byte0);//send Data over SPI
         MAX7301_setPIN(CH8_CS,ON);//CS on
+        break;
+
+    default:
+        UARTSendArray("-->Wrong Channel\r\n");
         break;
     }
 }

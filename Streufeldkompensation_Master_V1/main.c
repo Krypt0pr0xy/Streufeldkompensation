@@ -23,7 +23,9 @@ int main(void)
 
 	setup_MAX7301pins();
 
-
+	delay_ms(1000);
+	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
+	UARTSendArray("*****************************************\r\n");
 	while(1)
 	{
 	    delay_ms(100);
