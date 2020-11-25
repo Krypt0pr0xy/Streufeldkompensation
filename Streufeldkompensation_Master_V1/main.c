@@ -20,18 +20,18 @@ int main(void)
 	config_standart_Ports();
 	config_SPI();
 	config__MAX7301();
-
 	setup_MAX7301pins();
 
-	delay_ms(1000);
+	delay_ms(100);
+
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
-	UARTSendArray("*******************************************\r\n");
+	UARTSendArray("****************************************************\r\n");
+
+
 	while(1)
 	{
-	    delay_ms(100);
-	    //UARTSendArray("Hallo Welt \r\n");//add a Carriage Return to the end
+	    delay_ms(10);
 	    check_interruptflag();
-
 	}
 }
 

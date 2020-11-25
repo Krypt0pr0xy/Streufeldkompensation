@@ -33,7 +33,7 @@ void config_CLK_1MHZ(void)
 
 void delay_ms(int ms)
 {
-    //Dynamic Delay for 1Mhz an 8Mhz same Time
+    //Dynamic Delay for 1Mhz
     unsigned int time = 0;
     for(time = ms; time >= 1; time--)
     {
@@ -105,6 +105,7 @@ void config_SPI(void)
 
 void check_interruptflag(void)
 {
+    //select the interrupt
     switch(interrupt_flag)
     {
         case interruptUARTRX:
@@ -118,7 +119,7 @@ void check_interruptflag(void)
             break;
     }
 
-    interrupt_flag = 0;
+    interrupt_flag = 0;//reseting the flag
 }
 
 
@@ -153,7 +154,7 @@ void setup_MAX7301pins(void)
     MAX7301_setPIN(CH7_CS,ON);//CS on
     MAX7301_setPIN(CH8_CS,ON);//CS on
 
-    //Set all A0 /A1 to OFF
+    //Set all A0 / A1 to OFF
     MAX7301_setPIN(CH1_A0,OFF);
     MAX7301_setPIN(CH1_A1,OFF);
 
@@ -199,7 +200,7 @@ void UARTSendArray(char array_to_send[])//send char array
 #pragma vector=USCIAB0RX_VECTOR
 __interrupt void USCI0RX_ISR(void)
 {
-    interrupt_flag = interruptUARTRX;
+    interrupt_flag = interruptUARTRX;//Seting the Interrupt flag for UART RX
     while(!(UC0IFG & UCA0RXIFG));//Wait for buffer
     UARTreceiveArray();
 }
@@ -216,6 +217,7 @@ void UARTreceiveArray(void)
     }
     input_data[counter+1] = '\0';//add end of array because c "string standard"
 
+    //Clearing the rest of the UART Buffer
     while(UCA0RXBUF != 0x0D)
     {
         dummybuffer = UCA0RXBUF;
@@ -224,14 +226,44 @@ void UARTreceiveArray(void)
 
 }
 
+
+
+/*
+  ______________________
+ /\                     \
+/  \    _________________\
+\   \   \                /
+ \   \   \__________    /
+  \   \   \    /   /   /
+   \   \   \  /   /   /
+    \   \   \/   /   /
+     \   \  /   /   /
+      \   \/   /   /
+       \      /   /
+        \    /   /
+         \  /   /
+          \/___/
+
+
+          oooooo
+         oooooooo
+          oooooo
+           oooo
+
+
+      Achrung fehler bei SPI Komunikatiosn Siehe Doku
+ */
+
 //#################################################################
 //______SPI_Function
 
 void SPISendByte(unsigned char input_Byte)//send SPI Byte Directly
 {
     while(!(IFG2 & UCB0TXIFG)); // USCI_B0 TX buffer ready?
-    UCB0TXBUF = input_Byte;
+    UCB0TXBUF = input_Byte;//Sending SPI
 }
+
+
 
 
 
@@ -276,12 +308,13 @@ unsigned char SPIReceiveByte()
 /*
  * First command can only be set
  * Second commadn sets the channel from CH1-CH8
- * Third command gives the Voltage value from -4 to 4
+ * Third command gives the Voltage value from -1 to 1 or -10 to 10
  */
 void CommandDecoder(char input_command[])
 {
     UARTSendArray("Command Decoder:\r\n");
     unsigned char clearCounter=0;
+    //Clearing all Char arrays
     for(clearCounter = 0; clearCounter <=19;clearCounter++)
     {
         cmd_1[clearCounter] = '\0';
@@ -324,18 +357,12 @@ void CommandDecoder(char input_command[])
     }
 
     //ending the char array with a end Symbol
-
     cmd_1[strlen(cmd_1)+1] = '\0';
     cmd_2[strlen(cmd_2)+1] = '\0';
     cmd_3[strlen(cmd_3)+1] = '\0';
     cmd_4[strlen(cmd_4)+1] = '\0';
 
-    /*
-    strcat(cmd_1, "\r\n");
-    strcat(cmd_2, "\r\n");
-    strcat(cmd_3, "\r\n");
-    strcat(cmd_4, "\r\n");
-*/
+    //Sending the Information over UART back
     UARTSendArray(" * Command 1: \t");
     UARTSendArray(cmd_1);
     UARTSendArray("\r\n");
@@ -349,32 +376,33 @@ void CommandDecoder(char input_command[])
     UARTSendArray(cmd_4);
     UARTSendArray("\r\n\r\n");
 
+    //Check the SET Commadn and when true start command_set function
     if(strcmp(cmd_1, "SET\0") == 0)
     {
         command_SET(cmd_2, cmd_3, cmd_4);
     }
 
-
+    //Check the Help Commaand
     if(strcmp(cmd_1, "Help\0") == 0)
     {
+        //Sending Example
+        UARTSendArray("--------For Example-----------------\r\n");
         UARTSendArray("SET=CH1=2.5=OUT1\r\n");
-        UARTSendArray("----------------\r\n");
+        UARTSendArray("-------------------------------\r\n");
         UARTSendArray("SET\r\n");
         UARTSendArray("^^^=Command SET\r\n");
-        UARTSendArray("    CH1\r\n");
-        UARTSendArray("    ^^^=Select Channel\r\n");
-        UARTSendArray("        2.5\r\n");
-        UARTSendArray("        ^^^=Select Output Voltage(-4v <-> +4V)\r\n");
-        UARTSendArray("            OUT1\r\n");
-        UARTSendArray("            ^^^=Select Output Stage 1 or 10 -> +/-1V or +/-10V \r\n");
-        UARTSendArray("###############################################################\r\n");
+        UARTSendArray("     CH1\r\n");
+        UARTSendArray("     ^^^=Select Channel\r\n");
+        UARTSendArray("         2.5\r\n");
+        UARTSendArray("         ^^^=Select Output Voltage(-1v <-> +1V) or (-10v <-> +10V)\r\n");
+        UARTSendArray("             OUT1\r\n");
+        UARTSendArray("             ^^^=Select Output Stage 1 or 10 -> +/-1V or +/-10V \r\n");
+        UARTSendArray("#######################################################\r\n");
     }
-
-
-
 }
 
-
+//#################################################################
+//______command set setting the values
 void command_SET(char channel[], char value[], char out[])
 {
     /*Example for CH1 +/-10V 2.7k
@@ -384,22 +412,17 @@ void command_SET(char channel[], char value[], char out[])
      * 3. MAX7301 P4 Ausschalten für CS von DAC
      * 4. ADG1204 Decoder Einstellen und Pin Halten
      */
-    char buffer[1] = channel[2];
-    unsigned int CH = atoi(buffer);// extracting nummer from CH3 --> 3;
+
+    char buffer[1] = channel[2];//Reading the number ov CH1 --> 1
+    unsigned int CH = atoi(buffer);// extracting nummer from "3" --> 3;
     float vout = 0.0;
-    vout = (float)atoi(value);
+    vout = (float)atoi(value);//Casting de "number" to a number
 
 
-    unsigned char out_mode = 1;
-
+    unsigned char out_mode = 1;//Variable for Out1 or OUT10
     if(strcmp(out, "OUT1") == 0)
-    {
-        out_mode = 1;
-    }
-    else
-    {
-        out_mode = 10;
-    }
+    {out_mode = 1;}
+    else{out_mode = 10;}
 
     set_Voltage_MAX5719(CH, vout, out_mode);
 
@@ -513,8 +536,15 @@ void command_SET(char channel[], char value[], char out[])
         UARTSendArray("-->Wrong Channel\r\n");
         break;
     }
+
+
+    //Sending Finished
+    UARTSendArray("Sending -------------------------> \r\n");
+
 }
 
+//#################################################################
+//______MAX7301_setPin sets pins for GPIO exbander
 void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_setIO(5,1)
 {
     char state_checked = 0x00;
@@ -531,6 +561,8 @@ void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_s
 
 }
 
+//#################################################################
+//______set_VOltage_MAX5719 sets Voltage off DAC
 void set_Voltage_MAX5719(unsigned char channel, float set_voltage, unsigned char out_mode)//Only for symetric
 {
     if(out_mode == 1)

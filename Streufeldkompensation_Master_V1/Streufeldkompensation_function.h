@@ -47,8 +47,6 @@
 #define CH8_A0 26
 #define CH8_A1 27
 
-
-
 //#################################################################
 //______Config_Function
 void config_CLK_1MHZ(void);
@@ -57,9 +55,7 @@ void config_standart_Ports();
 void config_HW_UART(void);
 void config_SPI(void);
 
-
 void check_interruptflag(void);
-
 
 void config__MAX7301(void);
 
