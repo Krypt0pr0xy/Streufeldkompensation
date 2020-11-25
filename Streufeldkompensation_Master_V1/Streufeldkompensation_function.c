@@ -293,7 +293,7 @@ void CommandDecoder(char input_command[])
     unsigned char counter = 0;
     unsigned char cmd_counter = 0;
 
-    //SET=CH1=4353424=OUT1
+    //SET=CH1=4.5=OUT10
 
     cmd_counter=0;//Reseting counter for out but array
     for(counter = 0; (input_command[counter] != COMMANDCHAR) && (counter <= length); counter++)//Searching to Special Symbol
@@ -317,7 +317,7 @@ void CommandDecoder(char input_command[])
     }
 
     cmd_counter=0;//Reseting counter for out but array
-    for(counter = counter+1; (input_command[counter] != COMMANDCHAR) && (counter <= length); counter++)//Searching to Special Symbol
+    for(counter = counter+1; (input_command[counter] != '\r') && (counter <= length); counter++)//Searching to Special Symbol
     {
         cmd_4[cmd_counter] = input_command[counter];//Copy char to comand char
         cmd_counter++;
@@ -384,16 +384,15 @@ void command_SET(char channel[], char value[], char out[])
      * 3. MAX7301 P4 Ausschalten für CS von DAC
      * 4. ADG1204 Decoder Einstellen und Pin Halten
      */
-    unsigned char CH = channel[2];// extracting nummer from CH3 --> 3
-    UARTSendArray("######Test\r\n");
-    UARTSendArray(CH);
+    char buffer[1] = channel[2];
+    unsigned int CH = atoi(buffer);// extracting nummer from CH3 --> 3;
     float vout = 0.0;
     vout = (float)atoi(value);
 
-    set_Voltage_MAX5719(CH, vout);
+
     unsigned char out_mode = 1;
 
-    if(strcmp(out, "OUT1\0") == 0)
+    if(strcmp(out, "OUT1") == 0)
     {
         out_mode = 1;
     }
@@ -402,16 +401,9 @@ void command_SET(char channel[], char value[], char out[])
         out_mode = 10;
     }
 
+    set_Voltage_MAX5719(CH, vout, out_mode);
 
-    UARTSendArray("SET CH:   \t\t");
-    UARTSendArray(channel);
-    UARTSendArray("\r\n");
-    UARTSendArray("SET Voltage:\t");
-    UARTSendArray(value);
-    UARTSendArray("\r\n");
-    UARTSendArray("SET Output:\t");
-    UARTSendArray(out);
-    UARTSendArray("\r\n");
+
     switch(CH)
     {
     case 1:
@@ -539,17 +531,30 @@ void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_s
 
 }
 
-void set_Voltage_MAX5719(unsigned char channel, float set_voltage)//Only for symetric
+void set_Voltage_MAX5719(unsigned char channel, float set_voltage, unsigned char out_mode)//Only for symetric
 {
-    if((set_voltage >= vref) || (set_voltage <= (vref*-1)))//check if Voltage input is in the range of vref
+    if(out_mode == 1)
     {
-        set_voltage = 0.0;
-        UARTSendArray("-->Wrong Voltage set to 0.0\r\n");
+        if((set_voltage >= 1.00001) || (set_voltage <= -1.00001))//check if Voltage input is in the range of vref
+            {
+                set_voltage = 0.0;
+                UARTSendArray("-->Wrong Voltage set to 0.0 \r\n");
+            }
+        set_voltage = set_voltage / vref;
     }
-
+    else
+    {
+        if((set_voltage >= 10.00001) || (set_voltage <= -10.00001))//check if Voltage input is in the range of vref
+            {
+                set_voltage = 0.0;
+                UARTSendArray("-->Wrong Voltage set to 0.0 \r\n");
+            }
+        set_voltage = set_voltage / 2.4414;
+    }
     set_voltage = set_voltage + (vref / 2);
     unsigned long out = 0;
     out = (unsigned long)(set_voltage*(1048575/vref)); // calulating the Bit value
+
 
 
     //unsigned char byte3 = ((out >> 24) & 0xFF); //byte not used
@@ -612,6 +617,7 @@ void set_Voltage_MAX5719(unsigned char channel, float set_voltage)//Only for sym
         UARTSendArray("-->Wrong Channel\r\n");
         break;
     }
+
 }
 
 
