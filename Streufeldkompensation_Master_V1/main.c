@@ -10,9 +10,9 @@
 
 //#################################################################
 //______Main_Function
-
 int main(void)
 {
+//Test
     WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
 	//all Config functions
 	config_CLK_1MHZ();
