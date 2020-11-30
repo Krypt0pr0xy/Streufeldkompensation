@@ -47,6 +47,9 @@ void config_standart_Ports(void)
     //chipselect P1.4
     P1OUT |= BIT4;
     P1DIR |= BIT4;
+
+    P1OUT |= BIT0;
+    P1DIR |= BIT0;
 }
 
 void config_HW_UART(void)
@@ -251,7 +254,7 @@ void UARTreceiveArray(void)
            oooo
 
 
-      Achrung fehler bei SPI Komunikatiosn Siehe Doku
+      Achtung fehler bei SPI Komunikatiosn Siehe Doku
  */
 
 //#################################################################
@@ -593,6 +596,11 @@ void set_Voltage_MAX5719(unsigned char channel, float set_voltage, unsigned char
     unsigned char byte2 = ((out >> 16) & 0xFF);//last byte from the long value
     unsigned char byte1 = ((out >> 8 ) & 0XFF);//middle byte from the long value
     unsigned char byte0 = (out & 0XFF);//first byte from the long value
+
+
+
+
+
 
     //Sending MSP First last 4 Bits are ignored
     switch(channel)//Sending to the correct Channel
