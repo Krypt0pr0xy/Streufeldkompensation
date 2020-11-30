@@ -37,20 +37,18 @@ int main(void)
 
 
 //_______________________________Test_______________________________
-	   float set_voltage = 1;
+	   float set_voltage = 0;
        set_voltage = set_voltage + (vref / 2);
        unsigned long out = 0;
        out = (unsigned long)(set_voltage*(1048575/vref)); // calulating the Bit value
 
        //unsigned char byte3 = ((out >> 24) & 0xFF); //byte not used
-       unsigned char byte2 = ((out >> 16) & 0xFF0000);//last byte from the long value
-       unsigned char byte1 = ((out >> 8 ) & 0xFF0000);//middle byte from the long value
-       unsigned char byte0 = (out & 0xFF0000);//first byte from the long value
+       unsigned char byte0 = ((out >> 16) & 0x000000FF);//last byte from the long value
+       unsigned char byte1 = ((out >> 8 ) & 0x000000FF);//middle byte from the long value
+       unsigned char byte2 = (out & 0x000000FF);//first byte from the long value
 
 
-       byte0 = 0x80;
-       byte1 = 0x00;
-       byte2 = 0x00;
+
        P1OUT &= (~BIT0);
 
 	    while(!(IFG2 & UCB0TXIFG)); // USCI_B0 TX buffer ready?
