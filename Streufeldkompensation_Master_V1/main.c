@@ -42,10 +42,12 @@ int main(void)
        unsigned long out = 0;
        out = (unsigned long)(set_voltage*(1048575/vref)); // calulating the Bit value
 
+
+       out = 0x00102030;
        //unsigned char byte3 = ((out >> 24) & 0xFF); //byte not used
-       unsigned char byte0 = ((out >> 16) & 0x000000FF);//last byte from the long value
-       unsigned char byte1 = ((out >> 8 ) & 0x000000FF);//middle byte from the long value
-       unsigned char byte2 = (out & 0x000000FF);//first byte from the long value
+       unsigned char byte0 = (out >> 16);//last byte from the long value
+       unsigned char byte1 = (out >> 8);//middle byte from the long value
+       unsigned char byte2 = (out);//first byte from the long value
 
 
 
