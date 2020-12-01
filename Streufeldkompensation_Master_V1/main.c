@@ -26,7 +26,7 @@ int main(void)
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
 	UARTSendArray("****************************************************\r\n");
 
-
+    float set_voltage = 0;
 	while(1)
 	{
 	    /*
@@ -37,18 +37,15 @@ int main(void)
 
 
 //_______________________________Test_______________________________
-	   float set_voltage = 0;
-       set_voltage = set_voltage + (vref / 2);
+
        unsigned long out = 0;
-       out = (unsigned long)(set_voltage*(1048575/vref)); // calulating the Bit value
+       out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
 
 
-       out = 0x00102030;
        //unsigned char byte3 = ((out >> 24) & 0xFF); //byte not used
        unsigned char byte0 = (out >> 16);//last byte from the long value
        unsigned char byte1 = (out >> 8);//middle byte from the long value
        unsigned char byte2 = (out);//first byte from the long value
-
 
 
        P1OUT &= (~BIT0);
@@ -66,7 +63,7 @@ int main(void)
         P1OUT |= (BIT0);
 
 
-        delay_ms(10000);
+        delay_ms(1000);
 //_______________________________Test_______________________________
 
 	}

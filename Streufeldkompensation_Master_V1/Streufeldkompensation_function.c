@@ -231,31 +231,6 @@ void UARTreceiveArray(void)
 
 
 
-/*
-  ______________________
- /\                     \
-/  \    _________________\
-\   \   \                /
- \   \   \__________    /
-  \   \   \    /   /   /
-   \   \   \  /   /   /
-    \   \   \/   /   /
-     \   \  /   /   /
-      \   \/   /   /
-       \      /   /
-        \    /   /
-         \  /   /
-          \/___/
-
-
-          oooooo
-         oooooooo
-          oooooo
-           oooo
-
-
-      Achtung fehler bei SPI Komunikatiosn Siehe Doku
- */
 
 //#################################################################
 //______SPI_Function
