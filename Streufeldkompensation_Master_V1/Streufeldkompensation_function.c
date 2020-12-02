@@ -8,9 +8,9 @@
 #include <msp430.h>
 #include "Streufeldkompensation_function.h"
 #include <string.h>
-int interrupt_flag;
+char interrupt_flag;
+char status_flag = ok;
 char input_data[254] = " ";//dummy buffer
-
 
 char cmd_1[20] = "";
 char cmd_2[20] = "";
@@ -128,21 +128,21 @@ void check_interruptflag(void)
 
 void config__MAX7301(void)
 {
-    SPISendData_2(0x04,0x01);//Start Config
-    SPISendData_2(0x06,0xFF);//Input Mask Transition Register
+    SPISendData_Max7301_2(0x04,0x01);//Start Config
+    SPISendData_Max7301_2(0x06,0xFF);//Input Mask Transition Register
 
 
     //set Pin Output
-    SPISendData_2(0x09, 0x55);//P4-P7
-    SPISendData_2(0x0A, 0x55);//P8-P11
-    SPISendData_2(0x0B, 0x55);//P12-P15
-    SPISendData_2(0x0C, 0x55);//P16-P19
-    SPISendData_2(0x0D, 0x55);//P20-P23
-    SPISendData_2(0x0E, 0x55);//P24-P27
-    SPISendData_2(0x0F, 0x55);//P28-P31
+    SPISendData_Max7301_2(0x09, 0x55);//P4-P7
+    SPISendData_Max7301_2(0x0A, 0x55);//P8-P11
+    SPISendData_Max7301_2(0x0B, 0x55);//P12-P15
+    SPISendData_Max7301_2(0x0C, 0x55);//P16-P19
+    SPISendData_Max7301_2(0x0D, 0x55);//P20-P23
+    SPISendData_Max7301_2(0x0E, 0x55);//P24-P27
+    SPISendData_Max7301_2(0x0F, 0x55);//P28-P31
 
-    SPISendData_2(0x04, 0x01);//Normal operation
-    SPISendData_2(0x04,0x81);//Configregister
+    SPISendData_Max7301_2(0x04, 0x01);//Normal operation
+    SPISendData_Max7301_2(0x04,0x81);//Configregister
 }
 
 
@@ -245,35 +245,52 @@ void SPISendByte(unsigned char input_Byte)//send SPI Byte Directly
 
 
 
-void SPISendData_1(unsigned char input_Byte)//Send SPI Data with Chip Select an timing for 1 Byte
+void SPISendData_Max7301_1(unsigned char input_Byte)//Send SPI Data with Chip Select an timing for 1 Byte
 {
-    CS_Low;
+    CS_Max7301_Low;
     SPISendByte(input_Byte);//Send first Byte
     __delay_cycles(20);//NOP
-    CS_High;
+    CS_Max7301_High;
+    delay_ms(100);
 }
 
-void SPISendData_2(unsigned char input_Byte1, unsigned char input_Byte2)//Send SPI Data with Chip Select an timing for 2 Byte
+void SPISendData_Max7301_2(unsigned char input_Byte1, unsigned char input_Byte2)//Send SPI Data with Chip Select an timing for 2 Byte
 {
-    CS_Low;
+    CS_Max7301_Low;
     SPISendByte(input_Byte1);//Send first Byte
     __delay_cycles(8);//NOP
     SPISendByte(input_Byte2);//Send second Byte
     __delay_cycles(20);//NOP
-    CS_High;
+    CS_Max7301_High;
+    delay_ms(100);
 }
 
-void SPISendData_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3)//Send SPI Data with Chip Select an timing for 3 Byte
+void SPISendData_Max7301_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3)//Send SPI Data with Chip Select an timing for 3 Byte
 {
-    CS_Low;
+    CS_Max7301_Low;
     SPISendByte(input_Byte1);//Send first Byte
     __delay_cycles(8);//NOP
     SPISendByte(input_Byte2);//Send second Byte
     __delay_cycles(8);//NOP
     SPISendByte(input_Byte3);//Send third Byte
     __delay_cycles(20);//NOP
-    CS_High;
+    CS_Max7301_High;
+    delay_ms(100);
 }
+
+void SPISendData_Max5719_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3)
+{
+    CS_Max5719_Low;
+    SPISendByte(input_Byte1);//Send first Byte
+    __delay_cycles(8);//NOP
+    SPISendByte(input_Byte2);//Send second Byte
+    __delay_cycles(8);//NOP
+    SPISendByte(input_Byte3);//Send third Byte
+    __delay_cycles(20);//NOP
+    CS_Max5719_High;
+    delay_ms(100);
+}
+
 unsigned char SPIReceiveByte()
 {
     while (!(IFG2 & UCB0RXIFG)); // USCI_B0 RX Received?
@@ -290,7 +307,10 @@ unsigned char SPIReceiveByte()
  */
 void CommandDecoder(char input_command[])
 {
+    char status_flag = ok;
+#ifdef DEBUGG
     UARTSendArray("Command Decoder:\r\n");
+#endif
     unsigned char clearCounter=0;
     //Clearing all Char arrays
     for(clearCounter = 0; clearCounter <=19;clearCounter++)
@@ -340,6 +360,7 @@ void CommandDecoder(char input_command[])
     cmd_3[strlen(cmd_3)+1] = '\0';
     cmd_4[strlen(cmd_4)+1] = '\0';
 
+#ifdef DEBUGG
     //Sending the Information over UART back
     UARTSendArray(" * Command 1: \t");
     UARTSendArray(cmd_1);
@@ -353,7 +374,7 @@ void CommandDecoder(char input_command[])
     UARTSendArray(" * Command 4: \t");
     UARTSendArray(cmd_4);
     UARTSendArray("\r\n\r\n");
-
+#endif
     //Check the SET Commadn and when true start command_set function
     if(strcmp(cmd_1, "SET\0") == 0)
     {
@@ -365,7 +386,7 @@ void CommandDecoder(char input_command[])
     {
         //Sending Example
         UARTSendArray("--------For Example-----------------\r\n");
-        UARTSendArray("SET=CH1=2.5=OUT1\r\n");
+        UARTSendArray("SET=CH1=2.5=OUT10\r\n");
         UARTSendArray("-------------------------------\r\n");
         UARTSendArray("SET\r\n");
         UARTSendArray("^^^=Command SET\r\n");
@@ -373,7 +394,7 @@ void CommandDecoder(char input_command[])
         UARTSendArray("     ^^^=Select Channel\r\n");
         UARTSendArray("         2.5\r\n");
         UARTSendArray("         ^^^=Select Output Voltage(-1v <-> +1V) or (-10v <-> +10V)\r\n");
-        UARTSendArray("             OUT1\r\n");
+        UARTSendArray("             OUT10\r\n");
         UARTSendArray("             ^^^=Select Output Stage 1 or 10 -> +/-1V or +/-10V \r\n");
         UARTSendArray("#######################################################\r\n");
     }
@@ -390,12 +411,44 @@ void command_SET(char channel[], char value[], char out[])
      * 3. MAX7301 P4 Ausschalten für CS von DAC
      * 4. ADG1204 Decoder Einstellen und Pin Halten
      */
-
+//_____________________________________________________________________________
+    //Getting the string Value to an float Variable
     char buffer[1] = channel[2];//Reading the number ov CH1 --> 1
     unsigned int CH = atoi(buffer);// extracting nummer from "3" --> 3;
     float vout = 0.0;
-    vout = (float)atoi(value);//Casting de "number" to a number
+    float vout_comma = 0.0;
+    vout = atoi(strtok(value, ','));//extracting nummber befor the comma
 
+    unsigned char num_counter = 0;
+    unsigned char temp_counter = 0;
+    unsigned char temp_len = 0;
+    unsigned char read_char = false;
+    char temp_num[20] = "";
+    for(num_counter = 0; num_counter <= strlen(value); num_counter++)//counting to the comma and extragting the last digits behind the Comma
+    {
+        if(value[num_counter] == ',')//check for the comma
+        {
+            num_counter++;//increas counter by one because we dont want the comma in the char array
+            read_char = true;//wehen found read flag setzten
+        }
+        if(read_char == true)//reading behind the comma
+        {
+            temp_num[temp_counter] = value[num_counter];//put the number in an tmporary char array
+            temp_counter++;//increas counter
+        }
+    }
+    temp_num[temp_counter+1] = '\0';//add a ending point for the Array
+    vout_comma = atoi(temp_num);//extract the number to a floating Variable
+    temp_len = strlen(temp_num);//size of the Variable
+    unsigned long divider = 10;//
+    while(temp_len > 1)//10 of the power of the size of the array
+    {divider *= 10;temp_len--;}//decreas number
+
+    if(value[0] == '-')//check if input value was positive or negative
+    {vout -= (vout_comma/divider);}//subtract from the vout value
+     else
+    {vout += (vout_comma/divider);}//add from the vout value
+//_____________________________________________________________________________
 
     unsigned char out_mode = 1;//Variable for Out1 or OUT10
     if(strcmp(out, "OUT1") == 0)
@@ -512,12 +565,22 @@ void command_SET(char channel[], char value[], char out[])
         break;
     default:
         UARTSendArray("-->Wrong Channel\r\n");
+        status_flag = error;
         break;
     }
 
+    if(status_flag > ok)
+    {
+        UARTSendArray("Fail \r\n");
+    }
+    else
+    {
+        UARTSendArray("OK \r\n");
+        //Sending Finished
+        UARTSendArray("Sending -------------------------> \r\n");
+    }
 
-    //Sending Finished
-    UARTSendArray("Sending -------------------------> \r\n");
+
 
 }
 
@@ -533,7 +596,7 @@ void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_s
     port_pin = port_pin + 0x20;//add offset (for more information datasheet)
     if((port_pin >= 0x20)&&(port_pin <=0x3F))//check if pin is avaible
     {
-        SPISendData_2(port_pin,state_checked);//Send two Bytes over SPI
+        SPISendData_Max7301_2(port_pin,state_checked);//Send two Bytes over SPI
     }
 
 
@@ -549,8 +612,9 @@ void set_Voltage_MAX5719(unsigned char channel, float set_voltage, unsigned char
             {
                 set_voltage = 0.0;
                 UARTSendArray("-->Wrong Voltage set to 0.0 \r\n");
+                status_flag = error;
             }
-        set_voltage = set_voltage / vref;
+        //set_voltage = set_voltage / vref;
     }
     else
     {
@@ -559,78 +623,70 @@ void set_Voltage_MAX5719(unsigned char channel, float set_voltage, unsigned char
                 set_voltage = 0.0;
                 UARTSendArray("-->Wrong Voltage set to 0.0 \r\n");
             }
-        set_voltage = set_voltage / 2.4414;
+        set_voltage = set_voltage / 2.5;
     }
-    set_voltage = set_voltage + (vref / 2);
     unsigned long out = 0;
-    out = (unsigned long)(set_voltage*(1048575/vref)); // calulating the Bit value
+    out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
 
 
+    //unsigned char byte3 = (out >> 24); //byte not used
+    unsigned char byte0 = (out >> 16);//last byte from the long value
+    unsigned char byte1 = (out >> 8);//middle byte from the long value
+    unsigned char byte2 = (out);//first byte from the long value
 
-    //unsigned char byte3 = ((out >> 24) & 0xFF); //byte not used
-    unsigned char byte2 = ((out >> 16) & 0xFF);//last byte from the long value
-    unsigned char byte1 = ((out >> 8 ) & 0XFF);//middle byte from the long value
-    unsigned char byte0 = (out & 0XFF);//first byte from the long value
-
-
-
-
-
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 
     //Sending MSP First last 4 Bits are ignored
     switch(channel)//Sending to the correct Channel
     {
     case 1:
         MAX7301_setPIN(CH1_CS,OFF);//CS off
-        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH1_CS,ON);//CS on
         break;
 
     case 2:
         MAX7301_setPIN(CH2_CS,OFF);//CS off
-        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH2_CS,ON);//CS on
         break;
 
     case 3:
         MAX7301_setPIN(CH3_CS,OFF);//CS off
-        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH3_CS,ON);//CS on
         break;
 
     case 4:
         MAX7301_setPIN(CH4_CS,OFF);//CS off
-        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH4_CS,ON);//CS on
         break;
 
     case 5:
         MAX7301_setPIN(CH5_CS,OFF);//CS off
-        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH5_CS,ON);//CS on
         break;
 
     case 6:
         MAX7301_setPIN(CH6_CS,OFF);//CS off
-        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH6_CS,ON);//CS on
         break;
 
     case 7:
         MAX7301_setPIN(CH7_CS,OFF);//CS off
-        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH7_CS,ON);//CS on
         break;
 
     case 8:
         MAX7301_setPIN(CH8_CS,OFF);//CS off
-        SPISendData_3(byte2, byte1, byte0);//send Data over SPI
+        SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH8_CS,ON);//CS on
         break;
 
-    default:
-        UARTSendArray("-->Wrong Channel\r\n");
-        break;
     }
 
 }

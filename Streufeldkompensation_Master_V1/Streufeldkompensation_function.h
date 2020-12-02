@@ -9,13 +9,24 @@
 
 #endif /* STREUFELDKOMPENSATION_FUNCTION_H_ */
 
+#define DEBUGG
+
 #define ON 1
 #define OFF 0
+#define true 1
+#define false 0
 
-#define CS_High (P1OUT |= (BIT4))
-#define CS_Low (P1OUT &= (~BIT4))
 
-#define COMMANDCHAR '='
+#define ok 0
+#define error 1
+#define CS_Max7301_High (P1OUT |= (BIT4))
+#define CS_Max7301_Low (P1OUT &= (~BIT4))
+
+
+#define CS_Max5719_High (P1OUT |= (BIT0))
+#define CS_Max5719_Low (P1OUT &= (~BIT0))
+
+#define COMMANDCHAR '_'
 #define interruptUARTRX 2
 
 #define vref 4.096
@@ -70,9 +81,9 @@ void UARTreceiveArray(void);
 //______SPI_Function
 
 void SPISendByte(unsigned char input_char);
-void SPISendData_1(unsigned char input_Byte);
-void SPISendData_2(unsigned char input_Byte1, unsigned char input_Byte2);
-void SPISendData_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3);
+void SPISendData_Max7301_1(unsigned char input_Byte);
+void SPISendData_Max7301_2(unsigned char input_Byte1, unsigned char input_Byte2);
+void SPISendData_Max7301_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3);
 unsigned char SPIReceiveByte();
 
 //#################################################################

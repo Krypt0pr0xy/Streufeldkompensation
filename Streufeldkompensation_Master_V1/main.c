@@ -26,46 +26,10 @@ int main(void)
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
 	UARTSendArray("****************************************************\r\n");
 
-    float set_voltage = 0;
 	while(1)
 	{
-	    /*
 	    delay_ms(10);
 	    check_interruptflag();
-	    */
-
-
-
-//_______________________________Test_______________________________
-
-       unsigned long out = 0;
-       out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
-
-
-       //unsigned char byte3 = ((out >> 24) & 0xFF); //byte not used
-       unsigned char byte0 = (out >> 16);//last byte from the long value
-       unsigned char byte1 = (out >> 8);//middle byte from the long value
-       unsigned char byte2 = (out);//first byte from the long value
-
-
-       P1OUT &= (~BIT0);
-
-	    while(!(IFG2 & UCB0TXIFG)); // USCI_B0 TX buffer ready?
-        UCB0TXBUF = byte0;//Sending SPI
-        __delay_cycles(8);//NOP
-        while(!(IFG2 & UCB0TXIFG)); // USCI_B0 TX buffer ready?
-        UCB0TXBUF = byte1;//Sending SPI
-        __delay_cycles(8);//NOP
-        while(!(IFG2 & UCB0TXIFG)); // USCI_B0 TX buffer ready?
-        UCB0TXBUF = byte2;//Sending SPI
-        __delay_cycles(20);//NOP
-
-        P1OUT |= (BIT0);
-
-
-        delay_ms(1000);
-//_______________________________Test_______________________________
-
 	}
 }
 
