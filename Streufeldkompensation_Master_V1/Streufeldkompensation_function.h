@@ -16,9 +16,6 @@
 #define true 1
 #define false 0
 
-
-#define ok 0
-#define error 1
 #define CS_Max7301_High (P1OUT |= (BIT4))
 #define CS_Max7301_Low (P1OUT &= (~BIT4))
 
@@ -67,6 +64,8 @@ void config_HW_UART(void);
 void config_SPI(void);
 
 void check_interruptflag(void);
+void config_Timer(void);
+__interrupt void Timer_A_CCR0_ISR(void);
 
 void config__MAX7301(void);
 
@@ -79,7 +78,6 @@ void UARTreceiveArray(void);
 
 //#################################################################
 //______SPI_Function
-
 void SPISendByte(unsigned char input_char);
 void SPISendData_Max7301_1(unsigned char input_Byte);
 void SPISendData_Max7301_2(unsigned char input_Byte1, unsigned char input_Byte2);

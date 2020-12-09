@@ -14,23 +14,19 @@ int main(void)
 {
     WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
 	//all Config functions
-	config_CLK_1MHZ();
-	config_HW_UART();
-	config_standart_Ports();
-	config_SPI();
-	config__MAX7301();
-	setup_MAX7301pins();
-
-	delay_ms(100);
-
+	config_CLK_1MHZ();//seting Clock to 1Mhz
+	config_HW_UART();//configurate Harware UART set JUmper Correct!
+	config_standart_Ports();//configurate standart I/O
+	config_SPI();//setup SPI
+	config__MAX7301();//configurate Max7301 over SPI
+	setup_MAX7301pins();//configurate default Pins Max7301 over SPI
+	config_Timer();
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
 	UARTSendArray("****************************************************\r\n");
 
 	while(1)
-	{
-	    delay_ms(10);
-	    check_interruptflag();
-	}
+	{}
+
 }
 
 

@@ -8,10 +8,11 @@
 #include <msp430.h>
 #include "Streufeldkompensation_function.h"
 #include <string.h>
-char interrupt_flag;
-char status_flag = ok;
-char input_data[254] = " ";//dummy buffer
 
+
+char interrupt_flag = 0;
+char status[60] = "";
+char input_data[90] = " ";//buffer for input
 char cmd_1[20] = "";
 char cmd_2[20] = "";
 char cmd_3[20] = "";
@@ -125,6 +126,25 @@ void check_interruptflag(void)
     interrupt_flag = 0;//reseting the flag
 }
 
+void config_Timer(void)
+{
+    //Set MCLK = SMCLK = 1MHz
+    BCSCTL1 = CALBC1_1MHZ;
+    DCOCTL = CALDCO_1MHZ;
+    //Timer Configuration
+    TACCR0 = 0; //Initially, Stop the Timer
+    TACCTL0 |= CCIE; //Enable interrupt for CCR0.
+    TACTL = TASSEL_2 + ID_0 + MC_1; //Select SMCLK, SMCLK/1 , Up Mode
+    TACCR0 = 1000-1; //Start Timer, Compare value for Up Mode to get 1ms delay per loop
+}
+
+
+#pragma vector = TIMER0_A0_VECTOR
+__interrupt void Timer_A_CCR0_ISR(void)//Timer A Interupt every 1ms
+{
+    check_interruptflag();//check if an interupt was done
+}
+
 
 void config__MAX7301(void)
 {
@@ -212,7 +232,7 @@ __interrupt void USCI0RX_ISR(void)
 void UARTreceiveArray(void)
 {
     unsigned char counter = 0;
-    char dummybuffer;
+    char dummybuffer = 0;
     while((input_data[counter] = UCA0RXBUF) != '\r')//while fill buffer at specific place until Carriage return
     {
         while(!(UC0IFG & UCA0RXIFG));//Wait for buffer
@@ -226,6 +246,7 @@ void UARTreceiveArray(void)
         dummybuffer = UCA0RXBUF;
         while(!(UC0IFG & UCA0RXIFG));//Wait for buffer
     }
+    if(dummybuffer){dummybuffer = 0;}//usles for function but this isnt there it will get outoptimized
 
 }
 
@@ -307,10 +328,8 @@ unsigned char SPIReceiveByte()
  */
 void CommandDecoder(char input_command[])
 {
-    char status_flag = ok;
-#ifdef DEBUGG
-    UARTSendArray("Command Decoder:\r\n");
-#endif
+    strcpy(status,"");//status clear
+
     unsigned char clearCounter=0;
     //Clearing all Char arrays
     for(clearCounter = 0; clearCounter <=19;clearCounter++)
@@ -360,21 +379,21 @@ void CommandDecoder(char input_command[])
     cmd_3[strlen(cmd_3)+1] = '\0';
     cmd_4[strlen(cmd_4)+1] = '\0';
 
-#ifdef DEBUGG
     //Sending the Information over UART back
-    UARTSendArray(" * Command 1: \t");
-    UARTSendArray(cmd_1);
-    UARTSendArray("\r\n");
-    UARTSendArray(" * Command 2: \t");
-    UARTSendArray(cmd_2);
-    UARTSendArray("\r\n");
-    UARTSendArray(" * Command 3: \t");
-    UARTSendArray(cmd_3);
-    UARTSendArray("\r\n");
-    UARTSendArray(" * Command 4: \t");
-    UARTSendArray(cmd_4);
-    UARTSendArray("\r\n\r\n");
-#endif
+//    UARTSendArray("Command Decoder:\r\n");
+//    UARTSendArray(" * Command 1: \t");
+//    UARTSendArray(cmd_1);
+//    UARTSendArray("\r\n");
+//    UARTSendArray(" * Command 2: \t");
+//    UARTSendArray(cmd_2);
+//    UARTSendArray("\r\n");
+//    UARTSendArray(" * Command 3: \t");
+//    UARTSendArray(cmd_3);
+//    UARTSendArray("\r\n");
+//    UARTSendArray(" * Command 4: \t");
+//    UARTSendArray(cmd_4);
+//    UARTSendArray("\r\n\r\n");
+
     //Check the SET Commadn and when true start command_set function
     if(strcmp(cmd_1, "SET\0") == 0)
     {
@@ -413,8 +432,20 @@ void command_SET(char channel[], char value[], char out[])
      */
 //_____________________________________________________________________________
     //Getting the string Value to an float Variable
-    char buffer[1] = channel[2];//Reading the number ov CH1 --> 1
-    unsigned int CH = atoi(buffer);// extracting nummer from "3" --> 3;
+    unsigned char CH = 0;
+    //Extracting the channel nummber of the char array
+    if(channel[3] == '\0')//check if its only one digit
+    {
+        char buffer[1] = channel[2];//Reading the number ov CH1 --> 1
+        CH = atoi(buffer);// extracting nummer from "3" --> 3;
+        if((CH > 8) || (CH == 0))//check if channel nummer between 1 and 8
+        {
+            strcat(status,"-->Wrong Channel set to CH1\r\n");//Safing error
+            CH = 1;
+        }
+    }
+    else{strcat(status,"-->Wrong Channel set to CH1\r\n");CH = 1;}//Safing error
+
     float vout = 0.0;
     float vout_comma = 0.0;
     vout = atoi(strtok(value, ','));//extracting nummber befor the comma
@@ -424,7 +455,7 @@ void command_SET(char channel[], char value[], char out[])
     unsigned char temp_len = 0;
     unsigned char read_char = false;
     char temp_num[20] = "";
-    for(num_counter = 0; num_counter <= strlen(value); num_counter++)//counting to the comma and extragting the last digits behind the Comma
+    for(num_counter = 0; (num_counter <= strlen(value)) && (num_counter <= 5); num_counter++)//counting to the comma and extragting the last digits behind the Comma
     {
         if(value[num_counter] == ',')//check for the comma
         {
@@ -457,7 +488,7 @@ void command_SET(char channel[], char value[], char out[])
 
     set_Voltage_MAX5719(CH, vout, out_mode);
 
-
+    //setting A0 and A1
     switch(CH)
     {
     case 1:
@@ -563,22 +594,26 @@ void command_SET(char channel[], char value[], char out[])
             MAX7301_setPIN(CH8_A1,OFF);
         }
         break;
-    default:
-        UARTSendArray("-->Wrong Channel\r\n");
-        status_flag = error;
-        break;
     }
 
-    if(status_flag > ok)
+    if(!strcmp(status,""))//check does it contain an ERROR?
     {
-        UARTSendArray("Fail \r\n");
-    }
-    else
-    {
-        UARTSendArray("OK \r\n");
+        UARTSendArray("OK \r\n");//ifnot OK
         //Sending Finished
         UARTSendArray("Sending -------------------------> \r\n");
     }
+    else
+    {
+        UARTSendArray("Fail\r\n");//else Fail
+        UARTSendArray("see Help for more Information\r\n");
+#ifdef DEBUGG
+        UARTSendArray(status);//if debugg is defined putout the error message
+        UARTSendArray("\r\n");
+#endif
+    }
+
+
+
 
 
 
@@ -611,8 +646,8 @@ void set_Voltage_MAX5719(unsigned char channel, float set_voltage, unsigned char
         if((set_voltage >= 1.00001) || (set_voltage <= -1.00001))//check if Voltage input is in the range of vref
             {
                 set_voltage = 0.0;
-                UARTSendArray("-->Wrong Voltage set to 0.0 \r\n");
-                status_flag = error;
+                //UARTSendArray("-->Wrong Voltage set to 0.0 \r\n");
+                strcat(status,"-->Wrong Voltage set to 0.0 \r\n");
             }
         //set_voltage = set_voltage / vref;
     }
@@ -621,7 +656,8 @@ void set_Voltage_MAX5719(unsigned char channel, float set_voltage, unsigned char
         if((set_voltage >= 10.00001) || (set_voltage <= -10.00001))//check if Voltage input is in the range of vref
             {
                 set_voltage = 0.0;
-                UARTSendArray("-->Wrong Voltage set to 0.0 \r\n");
+                //UARTSendArray("-->Wrong Voltage set to 0.0 \r\n");
+                strcat(status,"-->Wrong Voltage set to 0.0 \r\n");
             }
         set_voltage = set_voltage / 2.5;
     }
