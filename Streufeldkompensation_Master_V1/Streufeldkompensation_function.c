@@ -421,7 +421,7 @@ void CommandDecoder(char input_command[])
 
 //#################################################################
 //______command set setting the values
-void command_SET(char channel[], char value[], char out[])
+void command_SET(char channel[20], char value[20], char out[20])
 {
     /*Example for CH1 +/-10V 2.7k
      *
@@ -431,6 +431,40 @@ void command_SET(char channel[], char value[], char out[])
      * 4. ADG1204 Decoder Einstellen und Pin Halten
      */
 //_____________________________________________________________________________
+    char temp_test_input[20] = "";
+    strcpy(temp_test_input, value);
+    temp_test_input[19] = '\0';
+    int temp_test_firstdigit = 0;
+    unsigned long long temp_test_commavalue = 0;
+    unsigned long long temp_test_Divider = 1E18;
+    temp_test_firstdigit = atoi(strtok(value, ','));
+    temp_test_input[0] = 0;
+    temp_test_input[1] = 0;
+
+
+
+    char temp_test_counter = 0;
+    for(temp_test_counter = 2; temp_test_counter <=19; temp_test_counter++)
+    {
+        char temp_test_buf[2] = {temp_test_input[temp_test_counter], '\0' };
+        temp_test_commavalue+=(atoi(temp_test_buf)*temp_test_Divider);
+
+        temp_test_Divider /= 10;
+    }
+
+
+    double temp_test_vout = 0.0;
+
+    temp_test_vout+=temp_test_firstdigit;
+    temp_test_vout+=(temp_test_commavalue/1E19);
+
+      UARTSendArray("\r\n");
+
+
+
+
+
+
     //Getting the string Value to an float Variable
     unsigned char CH = 0;
     //Extracting the channel nummber of the char array
@@ -446,47 +480,16 @@ void command_SET(char channel[], char value[], char out[])
     }
     else{strcat(status,"-->Wrong Channel set to CH1\r\n");CH = 1;}//Safing error
 
-    float vout = 0.0;
-    float vout_comma = 0.0;
-    vout = atoi(strtok(value, ','));//extracting nummber befor the comma
 
-    unsigned char num_counter = 0;
-    unsigned char temp_counter = 0;
-    unsigned char temp_len = 0;
-    unsigned char read_char = false;
-    char temp_num[20] = "";
-    for(num_counter = 0; (num_counter <= strlen(value)) && (num_counter <= 5); num_counter++)//counting to the comma and extragting the last digits behind the Comma
-    {
-        if(value[num_counter] == ',')//check for the comma
-        {
-            num_counter++;//increas counter by one because we dont want the comma in the char array
-            read_char = true;//wehen found read flag setzten
-        }
-        if(read_char == true)//reading behind the comma
-        {
-            temp_num[temp_counter] = value[num_counter];//put the number in an tmporary char array
-            temp_counter++;//increas counter
-        }
-    }
-    temp_num[temp_counter+1] = '\0';//add a ending point for the Array
-    vout_comma = atoi(temp_num);//extract the number to a floating Variable
-    temp_len = strlen(temp_num);//size of the Variable
-    unsigned long divider = 10;//
-    while(temp_len > 1)//10 of the power of the size of the array
-    {divider *= 10;temp_len--;}//decreas number
 
-    if(value[0] == '-')//check if input value was positive or negative
-    {vout -= (vout_comma/divider);}//subtract from the vout value
-     else
-    {vout += (vout_comma/divider);}//add from the vout value
-//_____________________________________________________________________________
+
 
     unsigned char out_mode = 1;//Variable for Out1 or OUT10
     if(strcmp(out, "OUT1") == 0)
     {out_mode = 1;}
     else{out_mode = 10;}
 
-    set_Voltage_MAX5719(CH, vout, out_mode);
+    set_Voltage_MAX5719(CH, temp_test_vout, out_mode);
 
     //setting A0 and A1
     switch(CH)
@@ -639,11 +642,11 @@ void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_s
 
 //#################################################################
 //______set_VOltage_MAX5719 sets Voltage off DAC
-void set_Voltage_MAX5719(unsigned char channel, float set_voltage, unsigned char out_mode)//Only for symetric
+void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned char out_mode)//Only for symetric
 {
     if(out_mode == 1)
     {
-        if((set_voltage >= 1.00001) || (set_voltage <= -1.00001))//check if Voltage input is in the range of vref
+        if((set_voltage > 1) || (set_voltage < -1))//check if Voltage input is in the range of vref
             {
                 set_voltage = 0.0;
                 //UARTSendArray("-->Wrong Voltage set to 0.0 \r\n");
@@ -653,7 +656,7 @@ void set_Voltage_MAX5719(unsigned char channel, float set_voltage, unsigned char
     }
     else
     {
-        if((set_voltage >= 10.00001) || (set_voltage <= -10.00001))//check if Voltage input is in the range of vref
+        if((set_voltage > 10) || (set_voltage < -10))//check if Voltage input is in the range of vref
             {
                 set_voltage = 0.0;
                 //UARTSendArray("-->Wrong Voltage set to 0.0 \r\n");

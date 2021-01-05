@@ -95,4 +95,4 @@ void MAX7301_setPIN(unsigned char port_pin, unsigned char state);
 
 //#################################################################
 //______MAX5719 DAC
-void set_Voltage_MAX5719(unsigned char channel, float set_voltage, unsigned char out_mode);
+void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned char out_mode);

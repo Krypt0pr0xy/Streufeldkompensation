@@ -23,7 +23,7 @@ int main(void)
 	config_Timer();
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
 	UARTSendArray("****************************************************\r\n");
-//Test
+
 	while(1)
 	{}
 
