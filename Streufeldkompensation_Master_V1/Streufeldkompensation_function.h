@@ -9,7 +9,7 @@
 
 #endif /* STREUFELDKOMPENSATION_FUNCTION_H_ */
 
-#define DEBUGG
+//#define DEBUGG
 
 #define ON 1
 #define OFF 0

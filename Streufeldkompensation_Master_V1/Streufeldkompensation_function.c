@@ -61,7 +61,6 @@ void config_HW_UART(void)
      * P1.2 --> TXD
      *
      */
-
     P1SEL |= (BIT1 + BIT2); // P1.1 = RXD, P1.2=TXD
     P1SEL2 |= (BIT1 + BIT2); // P1.1 = RXD, P1.2=TXD
 
@@ -91,6 +90,7 @@ void config_SPI(void)
      * P1.7 = UCB0SIMO --> MOSI
      * P1.5 = USBCLK --> CLK
      */
+
     P1SEL |= (BIT5 + BIT6 + BIT7);//selecting ports
     P1SEL2 |= (BIT5 + BIT6 + BIT7);//selecting ports
 
@@ -178,27 +178,28 @@ void setup_MAX7301pins(void)
     MAX7301_setPIN(CH8_CS,ON);//CS on
 
     //Set all A0 / A1 to OFF
+    //CH1----------------------
     MAX7301_setPIN(CH1_A0,OFF);
     MAX7301_setPIN(CH1_A1,OFF);
-
+    //CH2----------------------
     MAX7301_setPIN(CH2_A0,OFF);
     MAX7301_setPIN(CH2_A1,OFF);
-
+    //CH3----------------------
     MAX7301_setPIN(CH3_A0,OFF);
     MAX7301_setPIN(CH3_A1,OFF);
-
+    //CH4----------------------
     MAX7301_setPIN(CH4_A0,OFF);
     MAX7301_setPIN(CH4_A1,OFF);
-
+    //CH5----------------------
     MAX7301_setPIN(CH5_A0,OFF);
     MAX7301_setPIN(CH5_A1,OFF);
-
+    //CH6----------------------
     MAX7301_setPIN(CH6_A0,OFF);
     MAX7301_setPIN(CH6_A1,OFF);
-
+    //CH7----------------------
     MAX7301_setPIN(CH7_A0,OFF);
     MAX7301_setPIN(CH7_A1,OFF);
-
+    //CH8----------------------
     MAX7301_setPIN(CH8_A0,OFF);
     MAX7301_setPIN(CH8_A1,OFF);
 
@@ -328,6 +329,10 @@ unsigned char SPIReceiveByte()
  */
 void CommandDecoder(char input_command[])
 {
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("CommandDecoder: Start");
+        UARTSendArray("\r\n");
+#endif
     strcpy(status,"");//status clear
 
     unsigned char clearCounter=0;
@@ -380,19 +385,24 @@ void CommandDecoder(char input_command[])
     cmd_4[strlen(cmd_4)+1] = '\0';
 
     //Sending the Information over UART back
-//    UARTSendArray("Command Decoder:\r\n");
-//    UARTSendArray(" * Command 1: \t");
-//    UARTSendArray(cmd_1);
-//    UARTSendArray("\r\n");
-//    UARTSendArray(" * Command 2: \t");
-//    UARTSendArray(cmd_2);
-//    UARTSendArray("\r\n");
-//    UARTSendArray(" * Command 3: \t");
-//    UARTSendArray(cmd_3);
-//    UARTSendArray("\r\n");
-//    UARTSendArray(" * Command 4: \t");
-//    UARTSendArray(cmd_4);
-//    UARTSendArray("\r\n\r\n");
+
+
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("Command Decoder:\r\n");
+        UARTSendArray(" * Command 1: \t");
+        UARTSendArray(cmd_1);
+        UARTSendArray("\r\n");
+        UARTSendArray(" * Command 2: \t");
+        UARTSendArray(cmd_2);
+        UARTSendArray("\r\n");
+        UARTSendArray(" * Command 3: \t");
+        UARTSendArray(cmd_3);
+        UARTSendArray("\r\n");
+        UARTSendArray(" * Command 4: \t");
+        UARTSendArray(cmd_4);
+        UARTSendArray("\r\n\r\n");
+        UARTSendArray("\r\n");
+#endif
 
     //Check the SET Commadn and when true start command_set function
     if(strcmp(cmd_1, "SET\0") == 0)
@@ -417,6 +427,10 @@ void CommandDecoder(char input_command[])
         UARTSendArray("             ^^^=Select Output Stage 1 or 10 -> +/-1V or +/-10V \r\n");
         UARTSendArray("#######################################################\r\n");
     }
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("CommandDecoder: End");
+        UARTSendArray("\r\n");
+#endif
 }
 
 //#################################################################
@@ -430,40 +444,57 @@ void command_SET(char channel[20], char value[20], char out[20])
      * 3. MAX7301 P4 Ausschalten für CS von DAC
      * 4. ADG1204 Decoder Einstellen und Pin Halten
      */
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("command_SET: Start");
+        UARTSendArray("\r\n");
+#endif
 //_____________________________________________________________________________
-    char temp_test_input[20] = "";
-    strcpy(temp_test_input, value);
-    temp_test_input[19] = '\0';
-    int temp_test_firstdigit = 0;
-    unsigned long long temp_test_commavalue = 0;
-    unsigned long long temp_test_Divider = 1E18;
-    temp_test_firstdigit = atoi(strtok(value, ','));
-    temp_test_input[0] = 0;
-    temp_test_input[1] = 0;
+    //Extracting the Voltage
 
-
-
-    char temp_test_counter = 0;
-    for(temp_test_counter = 2; temp_test_counter <=19; temp_test_counter++)
+    char input[20] = "";//input buffer
+    strcpy(input, value);//copy it from value
+    input[19] = '\0';//securing the last buffer as end symbol
+    int firstdigit = 0;
+    unsigned long long commavalue = 0;
+    unsigned long long Divider = 1E18;
+    firstdigit = atoi(strtok(value, ','));//take the first digit only
+    if(firstdigit < 0){firstdigit *= (-1);}//be sure it is positiv
+    char offset = 0;
+    if(input[0] == '-')//check if first buffer has an minus symbol
     {
-        char temp_test_buf[2] = {temp_test_input[temp_test_counter], '\0' };
-        temp_test_commavalue+=(atoi(temp_test_buf)*temp_test_Divider);
+        offset = 1;
+        input[2] = 0;//clearing buffer
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("command_SET: with '-'");
+        UARTSendArray("\r\n");
+#endif
+    }else{
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("command_SET: without '-'");
+        UARTSendArray("\r\n");
+#endif
+    }
+    input[0] = 0;//clearing buffer
+    input[1] = 0;//clearing buffer
 
-        temp_test_Divider /= 10;
+    char counter = 0;
+    for(counter = (2+offset); counter <=19; counter++)//counting through the array
+    {
+        char temp_buf[2] = {input[counter], '\0' };//filling an temporary buffer ech time
+        commavalue+=(atoi(temp_buf)*Divider);//
+
+        Divider /= 10;//setting divider one place down
     }
 
 
-    double temp_test_vout = 0.0;
+    double vout = 0.0;
 
-    temp_test_vout+=temp_test_firstdigit;
-    temp_test_vout+=(temp_test_commavalue/1E19);
+    vout+=firstdigit;//adding the first digit to Vout
+    vout+=(commavalue/1E19);//adding the comma value to Vout
 
-      UARTSendArray("\r\n");
+    if(offset > 0){vout *= (-1);}//multiplying with -1 when the value should be negativ
 
-
-
-
-
+//_____________________________________________________________________________
 
     //Getting the string Value to an float Variable
     unsigned char CH = 0;
@@ -480,16 +511,12 @@ void command_SET(char channel[20], char value[20], char out[20])
     }
     else{strcat(status,"-->Wrong Channel set to CH1\r\n");CH = 1;}//Safing error
 
-
-
-
-
     unsigned char out_mode = 1;//Variable for Out1 or OUT10
     if(strcmp(out, "OUT1") == 0)
     {out_mode = 1;}
     else{out_mode = 10;}
 
-    set_Voltage_MAX5719(CH, temp_test_vout, out_mode);
+    set_Voltage_MAX5719(CH, vout, out_mode);
 
     //setting A0 and A1
     switch(CH)
@@ -598,6 +625,10 @@ void command_SET(char channel[20], char value[20], char out[20])
         }
         break;
     }
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("command_SET: End");
+        UARTSendArray("\r\n");
+#endif
 
     if(!strcmp(status,""))//check does it contain an ERROR?
     {
@@ -609,8 +640,8 @@ void command_SET(char channel[20], char value[20], char out[20])
     {
         UARTSendArray("Fail\r\n");//else Fail
         UARTSendArray("see Help for more Information\r\n");
-#ifdef DEBUGG
-        UARTSendArray(status);//if debugg is defined putout the error message
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray(status);
         UARTSendArray("\r\n");
 #endif
     }
