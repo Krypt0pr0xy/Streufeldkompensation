@@ -53,8 +53,16 @@ int main(void)
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
 	UARTSendArray("****************************************************\r\n");
 
+
+	//1011 0110 0000 0000
 	while(1)
-	{}
+	{
+	    if(SPIReceiv_Input_Max7301(22) == 1)
+	    {
+	        UARTSendArray("ON\r\n");
+	    }else{UARTSendArray("OFF\r\n");}
+	    delay_ms(1000);
+	}
 
 }
 

@@ -148,18 +148,40 @@ __interrupt void Timer_A_CCR0_ISR(void)//Timer A Interupt every 1ms
 
 void config__MAX7301(void)
 {
-    SPISendData_Max7301_2(0x04,0x01);//Start Config
+    SPISendData_Max7301_2(0x04,0x81);//Start Config
     SPISendData_Max7301_2(0x06,0xFF);//Input Mask Transition Register
-
+  //Datasheet Page 6
+//    REGISTER                        |ADDRESS CODE (HEX) |       REGISTER DATA
+//-----------------------------------------------------------------------------------------------------------
+//                                                                |D7|D6| |D5|D4| |D3|D2| |D1|D0|
+//Port Configuration for P7, P6, P5, P4       |   0x09    |       |  P7   |  P6   |  P5   |  P4 |
+//Port Configuration for P11, P10, P9, P8     |   0x0A    |       |  P11  |  P10  |  P9   |  P8 |
+//Port Configuration for P15, P14, P13, P12   |   0x0B    |       |  P15  |  P14  |  P13  |  P12|
+//Port Configuration for P19, P18, P17, P16   |   0x0C    |       |  P19  |  P18  |  P17  |  P16|
+//Port Configuration for P23, P22, P21, P20   |   0x0D    |       |  P23  |  P22  |  P21  |  P20|
+//Port Configuration for P27, P26, P25, P24   |   0x0E    |       |  P27  |  P26  |  P25  |  P24|
+//Port Configuration for P31, P30, P29, P28   |   0x0F    |       |  P31  |  P30  |  P29  |  P28|
+//
+//
+//MODE    FUNCTION                        PORT    REGISTER    PIN BEHAVIOR            ADDRESSCODE (HEX)   PORT CONFIGURATION BIT PAIR
+//                                                                                                UPPER LOWER
+//-----------------------------------------------------------------------------------------------------------------------
+//Output  GPIO Output                     Register bit = 0    Active-low logicoutput  0x09 to 0x0F        0       1
+//                                Register bit = 1    Active-high logicoutput 0x09 to 0x0F        0       1
+//-----------------------------------------------------------------------------------------------------------------------
+//Input   GPIO Input Without Pullup       Register bit input logic level logic input  0x09 to 0x0F        1       0
+//-----------------------------------------------------------------------------------------------------------------------
+//Input GPIO Input with Pullup            Register bit input logic level logic input  0x09 to 0x0F        1       1
 
     //set Pin Output
-    SPISendData_Max7301_2(0x09, 0x55);//P4-P7
-    SPISendData_Max7301_2(0x0A, 0x55);//P8-P11
-    SPISendData_Max7301_2(0x0B, 0x55);//P12-P15
-    SPISendData_Max7301_2(0x0C, 0x55);//P16-P19
-    SPISendData_Max7301_2(0x0D, 0x55);//P20-P23
-    SPISendData_Max7301_2(0x0E, 0x55);//P24-P27
-    SPISendData_Max7301_2(0x0F, 0x55);//P28-P31
+    SPISendData_Max7301_2(0x09, 0x55);//P4-P7 as Output
+    SPISendData_Max7301_2(0x0A, 0x55);//P8-P11 as Output
+    SPISendData_Max7301_2(0x0B, 0x55);//P12-P15 as Output
+    SPISendData_Max7301_2(0x0C, 0x55);//P16-P19 as Output
+    SPISendData_Max7301_2(0x0D, 0x75);//P20-P23 as Input
+    SPISendData_Max7301_2(0x0E, 0x55);//P24-P27 as Output
+
+    SPISendData_Max7301_2(0x0F, 0x55);//P28-P31 as Output
 
     SPISendData_Max7301_2(0x04, 0x01);//Normal operation
     SPISendData_Max7301_2(0x04,0x81);//Configregister
@@ -293,7 +315,7 @@ void SPISendData_Max7301_3(unsigned char input_Byte1, unsigned char input_Byte2,
     SPISendByte(input_Byte1);//Send first Byte
     __delay_cycles(8);//NOP
     SPISendByte(input_Byte2);//Send second Byte
-    __delay_cycles(8);//NOP
+    __delay_cycles(20);//NOP
     SPISendByte(input_Byte3);//Send third Byte
     __delay_cycles(20);//NOP
     CS_Max7301_High;
@@ -319,7 +341,47 @@ unsigned char SPIReceiveByte()
     return(UCB0RXBUF); // Store received data
 }
 
+char SPIReceiv_Input_Max7301(unsigned char Pin)
+{
+    unsigned char temp = 0;
+    unsigned char temp2 = 0;
+    Pin += 0x20;
+    Pin |= 0x80;
+    CS_Max7301_Low;
+    SPISendByte(Pin);//Send first Byte
+    __delay_cycles(8);//NOP
+    SPISendByte(0x00);//Send second Byte
+    __delay_cycles(20);//NOP
+    CS_Max7301_High;
+    __delay_cycles(5);//NOP
+    CS_Max7301_Low;
+    SPISendByte(0x00);//Send second Byte
+    __delay_cycles(8);//NOP
+    while (!(IFG2 & UCB0RXIFG)); // USCI_B0 RX Received?
+    temp = UCB0RXBUF; // Store received data
+    SPISendByte(0x00);//Send second Byte
+    while (!(IFG2 & UCB0RXIFG)); // USCI_B0 RX Received?
+    temp2 = UCB0RXBUF; // Store received data
+    __delay_cycles(20);//NOP
+    CS_Max7301_High;
+    delay_ms(100);
 
+
+    if(temp == Pin && temp2 == 0x01)
+    {
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("ON\r\n");
+#endif
+        return (0x01);
+    }
+    if(temp == Pin && temp2 == 0x00)
+    {
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("OFF\r\n");
+#endif
+        return (0x00);
+    }
+}
 //#################################################################
 //______Command Decoder SET=CH1=4353424=OUT1->SET, CH1, 4353424, OUT1
 /*

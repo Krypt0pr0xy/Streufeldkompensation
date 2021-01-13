@@ -83,6 +83,7 @@ void SPISendData_Max7301_1(unsigned char input_Byte);
 void SPISendData_Max7301_2(unsigned char input_Byte1, unsigned char input_Byte2);
 void SPISendData_Max7301_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3);
 unsigned char SPIReceiveByte();
+char SPIReceiv_Input_Max7301(unsigned char Pin);
 
 //#################################################################
 //______Command Decoder
