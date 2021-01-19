@@ -41,7 +41,7 @@ SPI CLK 7 |        |14  SPI MISO
 //______Main_Function
 int main(void)
 {
-    WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
+     WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
 	//all Config functions
 	config_CLK_1MHZ();//seting Clock to 1Mhz
 	config_HW_UART();//configurate Harware UART set JUmper Correct!
@@ -53,15 +53,12 @@ int main(void)
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
 	UARTSendArray("****************************************************\r\n");
 
+	config_specialPins(GPIO_INPUT, GPIO_INPUT, GPIO_INPUT, GPIO_INPUT);
 
-	//1011 0110 0000 0000
 	while(1)
 	{
-	    if(SPIReceiv_Input_Max7301(22) == 1)
-	    {
-	        UARTSendArray("ON\r\n");
-	    }else{UARTSendArray("OFF\r\n");}
-	    delay_ms(1000);
+
+
 	}
 
 }

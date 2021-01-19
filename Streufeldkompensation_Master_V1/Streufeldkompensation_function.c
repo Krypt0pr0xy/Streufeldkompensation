@@ -10,15 +10,17 @@
 #include <string.h>
 
 
-char interrupt_flag = 0;
-char status[60] = "";
-char input_data[90] = " ";//buffer for input
-char cmd_1[20] = "";
-char cmd_2[20] = "";
-char cmd_3[20] = "";
-char cmd_4[20] = "";
-
-
+char interrupt_flag = 0;//Flag for interupts
+char status[buflen_status] = "";//Status buffer
+char input_data[buflen_input_data] = " ";//buffer for input
+char cmd_1[buflen_cmd] = "";//command 1 buffer
+char cmd_2[buflen_cmd] = "";//command 2 buffer
+char cmd_3[buflen_cmd] = "";//command 3 buffer
+char cmd_4[buflen_cmd] = "";//command 4 buffer
+unsigned char pin28_setting = 0;
+unsigned char pin29_setting = 0;
+unsigned char pin30_setting = 0;
+unsigned char pin31_setting = 0;
 //#################################################################
 //______Config_Function
 
@@ -26,10 +28,10 @@ char cmd_4[20] = "";
 void config_CLK_1MHZ(void)
 {
     //Select Internal 1Mhz
-    DCOCTL = 0;
-    BCSCTL1 = 13;
-    BCSCTL1 = CALBC1_1MHZ;
-    DCOCTL = CALDCO_1MHZ;
+    DCOCTL = 0;//DCO Clock Frequency Control
+    BCSCTL1 = 13;//Basic Clock System Control 1
+    BCSCTL1 = CALBC1_1MHZ;//BCSCTL1 Calibration Data for 1MHz
+    DCOCTL = CALDCO_1MHZ;//DCOCTL  Calibration Data for 1MHz
 }
 
 void delay_ms(int ms)
@@ -45,10 +47,11 @@ void delay_ms(int ms)
 
 void config_standart_Ports(void)
 {
-    //chipselect P1.4
+    //chipselect P1.4 GPIO Expander
     P1OUT |= BIT4;
     P1DIR |= BIT4;
 
+    //chipselect P1.0 DAC
     P1OUT |= BIT0;
     P1DIR |= BIT0;
 }
@@ -73,8 +76,8 @@ void config_HW_UART(void)
     IE2 |= UCA0RXIE; // Enable USCI_A0 RX interrupt
     __bis_SR_register(GIE); //interrupts enabled
 
-    while(UCA0TXBUF > 0);
-    while(UCA0RXBUF > 0);
+    while(UCA0TXBUF > 0);//Clearing TXBUFFER
+    while(UCA0RXBUF > 0);//Clearing RXBUFFER
 
 }
 
@@ -167,7 +170,7 @@ void config__MAX7301(void)
 //                                                                                                UPPER LOWER
 //-----------------------------------------------------------------------------------------------------------------------
 //Output  GPIO Output                     Register bit = 0    Active-low logicoutput  0x09 to 0x0F        0       1
-//                                Register bit = 1    Active-high logicoutput 0x09 to 0x0F        0       1
+//                                        Register bit = 1    Active-high logicoutput 0x09 to 0x0F        0       1
 //-----------------------------------------------------------------------------------------------------------------------
 //Input   GPIO Input Without Pullup       Register bit input logic level logic input  0x09 to 0x0F        1       0
 //-----------------------------------------------------------------------------------------------------------------------
@@ -178,10 +181,28 @@ void config__MAX7301(void)
     SPISendData_Max7301_2(0x0A, 0x55);//P8-P11 as Output
     SPISendData_Max7301_2(0x0B, 0x55);//P12-P15 as Output
     SPISendData_Max7301_2(0x0C, 0x55);//P16-P19 as Output
-    SPISendData_Max7301_2(0x0D, 0x75);//P20-P23 as Input
+    SPISendData_Max7301_2(0x0D, 0x55);//P20-P23 as Output
     SPISendData_Max7301_2(0x0E, 0x55);//P24-P27 as Output
 
-    SPISendData_Max7301_2(0x0F, 0x55);//P28-P31 as Output
+    SPISendData_Max7301_2(0x0F, 0xAA);//P28-P31 as Output
+
+    SPISendData_Max7301_2(0x04, 0x01);//Normal operation
+    SPISendData_Max7301_2(0x04,0x81);//Configregister
+}
+void config_specialPins(unsigned char pin28_status, unsigned char pin29_status, unsigned char pin30_status, unsigned char pin31_status)
+{
+
+    unsigned char config = 0x00;//buffer for register
+
+    config |= pin28_status;//adding the setting for pin 28
+    config |= (pin29_status << 2);//shifting setting for pin 29
+    config |= (pin30_status << 4);//shifting setting for pin 30
+    config |= (pin31_status << 6);//shifting setting for pin 31
+
+    SPISendData_Max7301_2(0x04,0x81);//Start Config
+    SPISendData_Max7301_2(0x06,0xFF);//Input Mask Transition Register
+
+    SPISendData_Max7301_2(0x0F, config);//P28-P31 as
 
     SPISendData_Max7301_2(0x04, 0x01);//Normal operation
     SPISendData_Max7301_2(0x04,0x81);//Configregister
@@ -239,7 +260,7 @@ void UARTSendArray(char array_to_send[])//send char array
         while(!(IFG2 & UCA0TXIFG));//Unload all data first from Buffer
         UCA0TXBUF = array_to_send[counter];//Take array at specific place
     }
-    delay_ms(10);
+    delay_ms(10);//Security feature
 }
 
 
@@ -489,6 +510,69 @@ void CommandDecoder(char input_command[])
         UARTSendArray("             ^^^=Select Output Stage 1 or 10 -> +/-1V or +/-10V \r\n");
         UARTSendArray("#######################################################\r\n");
     }
+    if(strcmp(cmd_1, "PORTCONFIGURE\0") == 0)
+    {
+        if(strcmp(cmd_2, "WRITE\0") == 0)
+        {
+            unsigned char pinnumber = 0;
+            pinnumber = atoi(cmd_3);
+            if(pinnumber >= 28 && pinnumber <= 31)
+            {
+                unsigned char setting = 0;
+                if(strcmp(cmd_4, "OUTPUT\0") == 0)
+                {
+                    setting = GPIO_OUTPUT;
+                }
+                else if(strcmp(cmd_4, "INPUT\0") == 0)
+                {
+                    setting = GPIO_INPUT;
+                }
+                else if(strcmp(cmd_4, "INPUTWITHPULLUP\0") == 0)
+                {
+                    setting = GPIO_INPUT_with_PULLUP;
+                }
+                else
+                {
+                    setting = GPIO_INPUT;//if error set to Input
+                    //error
+                }
+                switch(pinnumber)
+                {
+                    case 28:
+                        pin28_setting = setting;
+                        break;
+                    case 29:
+                        pin29_setting = setting;
+                        break;
+                    case 30:
+                        pin30_setting = setting;
+                        break;
+                    case 31:
+                        pin31_setting = setting;
+                        break
+                }
+
+            }
+            else
+            {
+             //error
+            }
+        }
+        else if(strcmp(cmd_2, "READ\0") == 0)
+        {
+
+        }
+        else if(strcmp(cmd_2, "SET\0") == 0)
+        {
+            config_specialPins(pin28_setting, pin29_setting, pin30_setting, pin31_setting);
+        }
+        else
+        {
+            //ERROR
+        }
+
+    }
+
 #ifdef DEBUGG//if debugg is defined putout the message
         UARTSendArray("CommandDecoder: End");
         UARTSendArray("\r\n");
@@ -745,7 +829,7 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
                 //UARTSendArray("-->Wrong Voltage set to 0.0 \r\n");
                 strcat(status,"-->Wrong Voltage set to 0.0 \r\n");
             }
-        //set_voltage = set_voltage / vref;
+        set_voltage *= 4;
     }
     else
     {

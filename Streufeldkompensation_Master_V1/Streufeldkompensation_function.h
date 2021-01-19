@@ -16,20 +16,31 @@
 #define true 1
 #define false 0
 
-#define CS_Max7301_High (P1OUT |= (BIT4))
-#define CS_Max7301_Low (P1OUT &= (~BIT4))
+#define CS_Max7301_High (P1OUT |= (BIT4))//Setting th pin 1.4 High
+#define CS_Max7301_Low (P1OUT &= (~BIT4))//Setting th pin 1.4 Low
 
 
-#define CS_Max5719_High (P1OUT |= (BIT0))
-#define CS_Max5719_Low (P1OUT &= (~BIT0))
+#define CS_Max5719_High (P1OUT |= (BIT0))//Setting th pin 1.0 High
+#define CS_Max5719_Low (P1OUT &= (~BIT0))//Setting th pin 1.0 Low
 
-#define COMMANDCHAR '_'
-#define interruptUARTRX 2
+#define GPIO_OUTPUT 0x01//MAX7301 setting for Output Datasheet Page 6
+#define GPIO_INPUT  0x02//MAX7301 setting for Input Datasheet Page 6
+#define GPIO_INPUT_with_PULLUP 0x03//MAX7301 setting for Input with Pullup resistor Datasheet Page 6
 
-#define vref 4.096
+#define COMMANDCHAR '_'//Separator
+#define interruptUARTRX 2//Interupt nomber for Uart TX
+//#################################################################
+//______Important Numbers do not change them !!!
+#define buflen_status 60//!!DO not change them unless you discussed it with the creator of this document!!
+#define buflen_input_data 90//!!DO not change them unless you discussed it with the creator of this document!!
+#define buflen_cmd 20//!!DO not change them unless you discussed it with the creator of this document!!
+
+
+#define vref 4.096//Ref Voltage
 //#################################################################
 
-//______Name  Port Pin
+//______Name  Port Pin (MAX7301)
+//  Portname to Pin Name
 #define CH1_CS 4
 #define CH1_A0 5
 #define CH1_A1 6
@@ -59,7 +70,7 @@
 //______Config_Function
 void config_CLK_1MHZ(void);
 void delay_ms(int ms);
-void config_standart_Ports();
+void config_standart_Ports(void);
 void config_HW_UART(void);
 void config_SPI(void);
 
@@ -68,7 +79,7 @@ void config_Timer(void);
 __interrupt void Timer_A_CCR0_ISR(void);
 
 void config__MAX7301(void);
-
+void config_specialPins(unsigned char pin28_status, unsigned char pin29_status, unsigned char pin30_status, unsigned char pin31_status);
 void setup_MAX7301pins(void);
 //#################################################################
 //______UART_Function
@@ -82,7 +93,7 @@ void SPISendByte(unsigned char input_char);
 void SPISendData_Max7301_1(unsigned char input_Byte);
 void SPISendData_Max7301_2(unsigned char input_Byte1, unsigned char input_Byte2);
 void SPISendData_Max7301_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3);
-unsigned char SPIReceiveByte();
+unsigned char SPIReceiveByte(void);
 char SPIReceiv_Input_Max7301(unsigned char Pin);
 
 //#################################################################
@@ -97,3 +108,35 @@ void MAX7301_setPIN(unsigned char port_pin, unsigned char state);
 //#################################################################
 //______MAX5719 DAC
 void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned char out_mode);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//You have scrolled down to here so her is an Easter Egg
+//......................................................
+//
+//
+//                   2b | !2b
+//              That is the question here
