@@ -53,12 +53,14 @@ int main(void)
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
 	UARTSendArray("****************************************************\r\n");
 
-	config_specialPins(GPIO_INPUT, GPIO_INPUT, GPIO_INPUT, GPIO_INPUT);
+	config_specialPins(GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT);
 
 	while(1)
 	{
-
-
+	    UARTSendArray("P28=ON\r\n");
+	    delay_ms(3000);
+	    UARTSendArray("P28=OFF\r\n");
+	    delay_ms(3000);
 	}
 
 }
