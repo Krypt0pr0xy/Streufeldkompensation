@@ -57,10 +57,10 @@ int main(void)
 
 	while(1)
 	{
-	    UARTSendArray("P28=ON\r\n");
-	    delay_ms(3000);
-	    UARTSendArray("P28=OFF\r\n");
-	    delay_ms(3000);
+//	    UARTSendArray("P28=ON\r\n");
+//	    delay_ms(3000);
+//	    UARTSendArray("P28=OFF\r\n");
+//	    delay_ms(3000);
 	}
 
 }

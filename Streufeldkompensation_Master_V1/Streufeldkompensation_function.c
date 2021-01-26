@@ -152,7 +152,7 @@ __interrupt void Timer_A_CCR0_ISR(void)//Timer A Interupt every 1ms
 void config__MAX7301(void)
 {
     SPISendData_Max7301_2(0x04,0x81);//Start Config
-    SPISendData_Max7301_2(0x06,0xFF);//Input Mask Transition Register
+    SPISendData_Max7301_2(0x06,0x00);//Input Mask Transition Register
   //Datasheet Page 6
 //    REGISTER                        |ADDRESS CODE (HEX) |       REGISTER DATA
 //-----------------------------------------------------------------------------------------------------------
@@ -187,7 +187,6 @@ void config__MAX7301(void)
     SPISendData_Max7301_2(0x0F, 0xAA);//P28-P31 as Input
 
     SPISendData_Max7301_2(0x04, 0x01);//Normal operation
-    SPISendData_Max7301_2(0x04,0x81);//Configregister
 }
 void config_specialPins(unsigned char pin28_status, unsigned char pin29_status, unsigned char pin30_status, unsigned char pin31_status)
 {
@@ -200,12 +199,11 @@ void config_specialPins(unsigned char pin28_status, unsigned char pin29_status, 
     config |= (pin31_status << 6);//shifting setting for pin 31
 
     SPISendData_Max7301_2(0x04,0x81);//Start Config
-    SPISendData_Max7301_2(0x06,0xFF);//Input Mask Transition Register
+    SPISendData_Max7301_2(0x06,0x00);//Input Mask Transition Register
 
     SPISendData_Max7301_2(0x0F, config);//P28-P31 as
 
     SPISendData_Max7301_2(0x04, 0x01);//Normal operation
-    SPISendData_Max7301_2(0x04,0x81);//Configregister
 }
 
 
@@ -260,7 +258,7 @@ void UARTSendArray(char array_to_send[])//send char array
         while(!(IFG2 & UCA0TXIFG));//Unload all data first from Buffer
         UCA0TXBUF = array_to_send[counter];//Take array at specific place
     }
-    delay_ms(10);//Security feature
+    //delay_ms(5);//Security feature
 }
 
 
@@ -513,39 +511,49 @@ void CommandDecoder(char input_command[])
 
 
     //------------------------------------------------------------------------------------------------------------
-    //Todo Funktion auslagern
+    //Command for configure the ports
     if(strcmp(cmd_1, "PORTCONFIGURE\0") == 0)//Check if first command is PORTCONFIGURE
     {
+#ifdef DEBUGG//if debugg is defined putout the message
         UARTSendArray("Entering Port Conf\r\n");
-
+#endif
         if(strcmp(cmd_2, "WRITE\0") == 0)//Check if command 2 is WRITE
         {
+#ifdef DEBUGG//if debugg is defined putout the message
             UARTSendArray("Entering Port Conf Write\r\n");
+#endif
             unsigned char pinnumber = 0;
             pinnumber = atoi(cmd_3);//safing pin number (28-31)
             if(pinnumber >= 28 && pinnumber <= 31)//check if Pin number is in the range
             {
+#ifdef DEBUGG//if debugg is defined putout the message
                 UARTSendArray("Entering Port Conf Write Pinnumber\r\n");
+#endif
                 unsigned char setting = 0;
                 if(strcmp(cmd_4, "OUTPUT\0") == 0)//Check configuration type
                 {
+#ifdef DEBUGG//if debugg is defined putout the message
                     UARTSendArray("Entering Port Conf Write Pinnumber OUTPUT\r\n");
+#endif
                     setting = GPIO_OUTPUT;//safing Configuration type in setting
                 }
                 else if(strcmp(cmd_4, "INPUT\0") == 0)//Check configuration type
                 {
+#ifdef DEBUGG//if debugg is defined putout the message
                     UARTSendArray("Entering Port Conf Write Pinnumber INPUT\r\n");
+#endif
                     setting = GPIO_INPUT;//safing Configuration type in setting
                 }
                 else if(strcmp(cmd_4, "INPUTWITHPULLUP\0") == 0)//Check configuration type
                 {
+#ifdef DEBUGG//if debugg is defined putout the message
                     UARTSendArray("Entering Port Conf Write Pinnumber INPUT With PULLUP\r\n");
+#endif
                     setting = GPIO_INPUT_with_PULLUP;//safing Configuration type in setting
                 }
                 else
                 {
                     setting = GPIO_INPUT;//if error set to Input
-                    //error
                 }
                 switch(pinnumber)//switch for each pinnumber
                 {
@@ -563,28 +571,27 @@ void CommandDecoder(char input_command[])
                         break;
                 }
             }
-            else
-            {
-             //error
-            }
         }
         else if(strcmp(cmd_2, "SET\0") == 0)//Check if command 2 is SET
         {
+#ifdef DEBUGG//if debugg is defined putout the message
             UARTSendArray("Entering Port Conf SET\r\n");
+#endif
             config_specialPins(pin28_setting, pin29_setting, pin30_setting, pin31_setting);//configure specialpins
+            UARTSendArray("Configuration Finished\r\n");
         }
-        else
-        {
-            //ERROR
-        }
-//______________________________________________________________________________________________________
     }
+//______________________________________________________________________________________________________
+        //Command for setting the Port
     if(strcmp(cmd_1, "PORTSET\0") == 0)//Check if command 1 is PORTSET
     {
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("Entering PORT SET\r\n");
+#endif
         unsigned char pinnumber = 0;
         unsigned char pinckeck = 0;
         pinnumber = atoi(cmd_2);//coping number from command 2
-        if(pinnumber >= 28 && pinnumber <= 31)
+        if(pinnumber >= 28 && pinnumber <= 31)//check if number is between 28 and 31
         {
             switch(pinnumber)
             {
@@ -616,6 +623,45 @@ void CommandDecoder(char input_command[])
 
             }
         }
+    }
+    if(strcmp(cmd_1, "PORTREAD\0") == 0)//Check if command 1 is PORTREAD
+    {
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("Entering PORT READ\r\n");
+#endif
+        unsigned char pinnumber = 0;
+                unsigned char pinckeck = 0;
+                pinnumber = atoi(cmd_2);//coping number from command 2
+                if(pinnumber >= 28 && pinnumber <= 31)//check if number is between 28 and 31
+                {
+                    switch(pinnumber)//Switch between 28 and 31
+                    {
+                        case 28:
+                            if((pin28_setting == GPIO_INPUT) || (pin28_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
+                            {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
+                                if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P28=ON\r\n");}else{UARTSendArray("P28=OFF\r\n");}
+                            }
+                            break;
+                        case 29:
+                            if((pin29_setting == GPIO_INPUT) || (pin29_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
+                            {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
+                               if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P29=ON\r\n");}else{UARTSendArray("P29=OFF\r\n");}
+                            }
+                            break;
+                        case 30:
+                            if((pin30_setting == GPIO_INPUT) || (pin30_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
+                            {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
+                                if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P30=ON\r\n");}else{UARTSendArray("P30=OFF\r\n");}
+                            }
+                            break;
+                        case 31:
+                            if((pin31_setting == GPIO_INPUT) || (pin31_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
+                            {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
+                                if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P31=ON\r\n");}else{UARTSendArray("P31=OFF\r\n");}
+                            }
+                            break;
+                    }
+                }
     }
 //-------------------------------------------------------------------------------------------------------
 #ifdef DEBUGG//if debugg is defined putout the message
