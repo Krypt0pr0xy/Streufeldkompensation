@@ -21,8 +21,8 @@ unsigned char pin28_setting = GPIO_INPUT;
 unsigned char pin29_setting = GPIO_INPUT;
 unsigned char pin30_setting = GPIO_INPUT;
 unsigned char pin31_setting = GPIO_INPUT;
-//#################################################################
-//______Config_Function
+//#########################################################################################################################################################
+//______________________________________________________________________Config_Function
 
 //______Konfigurier Funktionen
 void config_CLK_1MHZ(void)
@@ -80,8 +80,6 @@ void config_HW_UART(void)
     while(UCA0RXBUF > 0);//Clearing RXBUFFER
 
 }
-
-
 
 
 
@@ -246,8 +244,8 @@ void setup_MAX7301pins(void)
 
 }
 
-//#################################################################
-//______UART_Function
+//#########################################################################################################################################################
+//______________________________________________________________________UART_Function
 
 void UARTSendArray(char array_to_send[])//send char array
 {
@@ -295,8 +293,8 @@ void UARTreceiveArray(void)
 
 
 
-//#################################################################
-//______SPI_Function
+//#########################################################################################################################################################
+//______________________________________________________________________SPI_Function
 
 void SPISendByte(unsigned char input_Byte)//send SPI Byte Directly
 {
@@ -401,8 +399,8 @@ char SPIReceiv_Input_Max7301(unsigned char Pin)
         return (0x00);
     }
 }
-//#################################################################
-//______Command Decoder SET=CH1=4353424=OUT1->SET, CH1, 4353424, OUT1
+//#########################################################################################################################################################
+//____________________________________________Command Decoder SET=CH1=4353424=OUT1->SET, CH1, 4353424, OUT1
 /*
  * First command can only be set
  * Second commadn sets the channel from CH1-CH8
@@ -485,7 +483,7 @@ void CommandDecoder(char input_command[])
         UARTSendArray("\r\n");
 #endif
 
-    //Check the SET Commadn and when true start command_set function
+    //Check the SET Command and when true start command_set function
     if(strcmp(cmd_1, "SET\0") == 0)
     {
         command_SET(cmd_2, cmd_3, cmd_4);
@@ -494,19 +492,7 @@ void CommandDecoder(char input_command[])
     //Check the Help Commaand
     if(strcmp(cmd_1, "Help\0") == 0)
     {
-        //Sending Example
-        UARTSendArray("--------For Example-----------------\r\n");
-        UARTSendArray("SET=CH1=2.5=OUT10\r\n");
-        UARTSendArray("-------------------------------\r\n");
-        UARTSendArray("SET\r\n");
-        UARTSendArray("^^^=Command SET\r\n");
-        UARTSendArray("     CH1\r\n");
-        UARTSendArray("     ^^^=Select Channel\r\n");
-        UARTSendArray("         2.5\r\n");
-        UARTSendArray("         ^^^=Select Output Voltage(-1v <-> +1V) or (-10v <-> +10V)\r\n");
-        UARTSendArray("             OUT10\r\n");
-        UARTSendArray("             ^^^=Select Output Stage 1 or 10 -> +/-1V or +/-10V \r\n");
-        UARTSendArray("#######################################################\r\n");
+        command_Help();
     }
 
 
@@ -514,154 +500,19 @@ void CommandDecoder(char input_command[])
     //Command for configure the ports
     if(strcmp(cmd_1, "PORTCONFIGURE\0") == 0)//Check if first command is PORTCONFIGURE
     {
-#ifdef DEBUGG//if debugg is defined putout the message
-        UARTSendArray("Entering Port Conf\r\n");
-#endif
-        if(strcmp(cmd_2, "WRITE\0") == 0)//Check if command 2 is WRITE
-        {
-#ifdef DEBUGG//if debugg is defined putout the message
-            UARTSendArray("Entering Port Conf Write\r\n");
-#endif
-            unsigned char pinnumber = 0;
-            pinnumber = atoi(cmd_3);//safing pin number (28-31)
-            if(pinnumber >= 28 && pinnumber <= 31)//check if Pin number is in the range
-            {
-#ifdef DEBUGG//if debugg is defined putout the message
-                UARTSendArray("Entering Port Conf Write Pinnumber\r\n");
-#endif
-                unsigned char setting = 0;
-                if(strcmp(cmd_4, "OUTPUT\0") == 0)//Check configuration type
-                {
-#ifdef DEBUGG//if debugg is defined putout the message
-                    UARTSendArray("Entering Port Conf Write Pinnumber OUTPUT\r\n");
-#endif
-                    setting = GPIO_OUTPUT;//safing Configuration type in setting
-                }
-                else if(strcmp(cmd_4, "INPUT\0") == 0)//Check configuration type
-                {
-#ifdef DEBUGG//if debugg is defined putout the message
-                    UARTSendArray("Entering Port Conf Write Pinnumber INPUT\r\n");
-#endif
-                    setting = GPIO_INPUT;//safing Configuration type in setting
-                }
-                else if(strcmp(cmd_4, "INPUTWITHPULLUP\0") == 0)//Check configuration type
-                {
-#ifdef DEBUGG//if debugg is defined putout the message
-                    UARTSendArray("Entering Port Conf Write Pinnumber INPUT With PULLUP\r\n");
-#endif
-                    setting = GPIO_INPUT_with_PULLUP;//safing Configuration type in setting
-                }
-                else
-                {
-                    setting = GPIO_INPUT;//if error set to Input
-                }
-                switch(pinnumber)//switch for each pinnumber
-                {
-                    case 28://case 28
-                        pin28_setting = setting;//safe settings in pin settings
-                        break;
-                    case 29://case 29
-                        pin29_setting = setting;//safe settings in pin settings
-                        break;
-                    case 30://case 30
-                        pin30_setting = setting;//safe settings in pin settings
-                        break;
-                    case 31://case 31
-                        pin31_setting = setting;//safe settings in pin settings
-                        break;
-                }
-            }
-        }
-        else if(strcmp(cmd_2, "SET\0") == 0)//Check if command 2 is SET
-        {
-#ifdef DEBUGG//if debugg is defined putout the message
-            UARTSendArray("Entering Port Conf SET\r\n");
-#endif
-            config_specialPins(pin28_setting, pin29_setting, pin30_setting, pin31_setting);//configure specialpins
-            UARTSendArray("Configuration Finished\r\n");
-        }
+        command_PORTCONFIGURE(cmd_2, cmd_3, cmd_4);
     }
 //______________________________________________________________________________________________________
         //Command for setting the Port
     if(strcmp(cmd_1, "PORTSET\0") == 0)//Check if command 1 is PORTSET
     {
-#ifdef DEBUGG//if debugg is defined putout the message
-        UARTSendArray("Entering PORT SET\r\n");
-#endif
-        unsigned char pinnumber = 0;
-        unsigned char pinckeck = 0;
-        pinnumber = atoi(cmd_2);//coping number from command 2
-        if(pinnumber >= 28 && pinnumber <= 31)//check if number is between 28 and 31
-        {
-            switch(pinnumber)
-            {
-                case 28:
-                    pinckeck = pin28_setting;//safe settings in pin settings
-                    break;
-                case 29:
-                    pinckeck = pin29_setting;//safe settings in pin settings
-                    break;
-                case 30:
-                    pinckeck = pin30_setting;//safe settings in pin settings
-                    break;
-                case 31:
-                    pinckeck = pin31_setting;//safe settings in pin settings
-                    break;
-            }
-            if(pinckeck == GPIO_OUTPUT)//check configuration of Pin
-            {
-                if(strcmp(cmd_3, "HIGH\0") == 0)//check if command 3 is HIGH
-                {
-                    UARTSendArray("Setting Pin HIGH\r\n");
-                    MAX7301_setPIN(pinnumber,ON);//set pin ON
-                }
-                if(strcmp(cmd_3, "LOW\0") == 0)//check if command 3 is LOW
-                {
-                    UARTSendArray("Setting Pin LOW\r\n");
-                    MAX7301_setPIN(pinnumber,OFF);//set pin OFF
-                }
-
-            }
-        }
+        command_PORTSET(cmd_2, cmd_3);
     }
+
+
     if(strcmp(cmd_1, "PORTREAD\0") == 0)//Check if command 1 is PORTREAD
     {
-#ifdef DEBUGG//if debugg is defined putout the message
-        UARTSendArray("Entering PORT READ\r\n");
-#endif
-        unsigned char pinnumber = 0;
-                unsigned char pinckeck = 0;
-                pinnumber = atoi(cmd_2);//coping number from command 2
-                if(pinnumber >= 28 && pinnumber <= 31)//check if number is between 28 and 31
-                {
-                    switch(pinnumber)//Switch between 28 and 31
-                    {
-                        case 28:
-                            if((pin28_setting == GPIO_INPUT) || (pin28_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
-                            {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
-                                if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P28=ON\r\n");}else{UARTSendArray("P28=OFF\r\n");}
-                            }
-                            break;
-                        case 29:
-                            if((pin29_setting == GPIO_INPUT) || (pin29_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
-                            {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
-                               if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P29=ON\r\n");}else{UARTSendArray("P29=OFF\r\n");}
-                            }
-                            break;
-                        case 30:
-                            if((pin30_setting == GPIO_INPUT) || (pin30_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
-                            {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
-                                if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P30=ON\r\n");}else{UARTSendArray("P30=OFF\r\n");}
-                            }
-                            break;
-                        case 31:
-                            if((pin31_setting == GPIO_INPUT) || (pin31_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
-                            {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
-                                if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P31=ON\r\n");}else{UARTSendArray("P31=OFF\r\n");}
-                            }
-                            break;
-                    }
-                }
+        command_PORTREAD(cmd_2);
     }
 //-------------------------------------------------------------------------------------------------------
 #ifdef DEBUGG//if debugg is defined putout the message
@@ -670,9 +521,9 @@ void CommandDecoder(char input_command[])
 #endif
 }
 
-//#################################################################
-//______command set setting the values
-void command_SET(char channel[20], char value[20], char out[20])
+//#########################################################################################################################################################
+//____________________________________________________________________________command functions
+void command_SET(char channel[buflen_cmd], char value[buflen_cmd], char out[buflen_cmd])
 {
     /*Example for CH1 +/-10V 2.7k
      *
@@ -731,7 +582,7 @@ void command_SET(char channel[20], char value[20], char out[20])
 
     if(offset > 0){vout *= (-1);}//multiplying with -1 when the value should be negativ
 
-//_____________________________________________________________________________
+//_____________________________________________________________________________________________
 
     //Getting the string Value to an float Variable
     unsigned char CH = 0;
@@ -883,13 +734,218 @@ void command_SET(char channel[20], char value[20], char out[20])
 #endif
     }
 
-
-
-
-
-
 }
 
+//______________________________________________________________________
+//sending Help
+void command_Help()
+{
+    //Sending Example
+    UARTSendArray("--------For Example to set Voltage--------------\r\n");
+    UARTSendArray("SET_CH1_2.5_OUT10\r\n");
+    UARTSendArray("-------------------------------\r\n");
+    UARTSendArray("SET\r\n");
+    UARTSendArray("^^^_Command SET\r\n");
+    UARTSendArray("     CH1\r\n");
+    UARTSendArray("     ^^^_Select Channel\r\n");
+    UARTSendArray("         2.5\r\n");
+    UARTSendArray("         ^^^_Select Output Voltage(-1v <-> +1V) or (-10v <-> +10V)\r\n");
+    UARTSendArray("             OUT10\r\n");
+    UARTSendArray("             ^^^_Select Output Stage 1 or 10 -> +/-1V or +/-10V \r\n");
+    UARTSendArray("#######################################################\r\n\r\n\r\n\r\n");
+
+    UARTSendArray("--------For Example to Configure Ports--------------\r\n");
+    UARTSendArray("PORTCONFIGURE_WRITE_28_OUTPUT\r\n");
+    UARTSendArray("     ^^^Setting Pin 28  to Output\r\n");
+
+    UARTSendArray("PORTCONFIGURE_WRITE_29_OUTPUT\r\n");
+    UARTSendArray("     ^^^Setting Pin 29  to Output\r\n");
+
+    UARTSendArray("PORTCONFIGURE_WRITE_30_OUTPUT\r\n");
+    UARTSendArray("     ^^^Setting Pin 30  to Output\r\n");
+
+    UARTSendArray("PORTCONFIGURE_WRITE_31_INPUT\r\n");
+    UARTSendArray("     ^^^Setting Pin 31  to Input\r\n");
+
+    UARTSendArray("PORTCONFIGURE_SET_\r\n");
+    UARTSendArray("     ^^^Finish Settings\r\n");
+    UARTSendArray("#######################################################\r\n\r\n\r\n\r\n");
+
+    UARTSendArray("--------For Example to Setting Output Ports--------------\r\n");
+
+    UARTSendArray("PORTSET_31_HIGH_r\n");
+    UARTSendArray("     ^^^Setting Pin 31 High\r\n");
+
+    UARTSendArray("PORTSET_31_LOW_r\n");
+    UARTSendArray("     ^^^Setting Pin 31 Low\r\n");
+    UARTSendArray("#######################################################\r\n\r\n\r\n\r\n");
+    UARTSendArray("--------For Example to Setting Output Ports--------------\r\n");
+
+    UARTSendArray("PORTREAD_31_\r\n");
+    UARTSendArray("     ^^^Reading Pin 31\r\n");
+    UARTSendArray("     ^^^Answer possibility:\r\n");
+    UARTSendArray("                 ^^^P31=OFF\r\n");
+    UARTSendArray("                 ^^^P31=ON\r\n");
+}
+
+//#################################################################
+//_____________________Configure Ports as Input or Output
+void command_PORTCONFIGURE(char commad2[buflen_cmd], char commad3[buflen_cmd], char commad4[buflen_cmd])
+{
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("Entering Port Conf\r\n");
+#endif
+        if(strcmp(commad2, "WRITE\0") == 0)//Check if command 2 is WRITE
+        {
+#ifdef DEBUGG//if debugg is defined putout the message
+            UARTSendArray("Entering Port Conf Write\r\n");
+#endif
+            unsigned char pinnumber = 0;
+            pinnumber = atoi(commad3);//safing pin number (28-31)
+            if(pinnumber >= 28 && pinnumber <= 31)//check if Pin number is in the range
+            {
+#ifdef DEBUGG//if debugg is defined putout the message
+                UARTSendArray("Entering Port Conf Write Pinnumber\r\n");
+#endif
+                unsigned char setting = 0;
+                if(strcmp(commad4, "OUTPUT\0") == 0)//Check configuration type
+                {
+#ifdef DEBUGG//if debugg is defined putout the message
+                    UARTSendArray("Entering Port Conf Write Pinnumber OUTPUT\r\n");
+#endif
+                    setting = GPIO_OUTPUT;//safing Configuration type in setting
+                }
+                else if(strcmp(commad4, "INPUT\0") == 0)//Check configuration type
+                {
+#ifdef DEBUGG//if debugg is defined putout the message
+                    UARTSendArray("Entering Port Conf Write Pinnumber INPUT\r\n");
+#endif
+                    setting = GPIO_INPUT;//safing Configuration type in setting
+                }
+                else if(strcmp(commad4, "INPUTWITHPULLUP\0") == 0)//Check configuration type
+                {
+#ifdef DEBUGG//if debugg is defined putout the message
+                    UARTSendArray("Entering Port Conf Write Pinnumber INPUT With PULLUP\r\n");
+#endif
+                    setting = GPIO_INPUT_with_PULLUP;//safing Configuration type in setting
+                }
+                else
+                {
+                    setting = GPIO_INPUT;//if error set to Input
+                }
+                switch(pinnumber)//switch for each pinnumber
+                {
+                    case 28://case 28
+                        pin28_setting = setting;//safe settings in pin settings
+                        break;
+                    case 29://case 29
+                        pin29_setting = setting;//safe settings in pin settings
+                        break;
+                    case 30://case 30
+                        pin30_setting = setting;//safe settings in pin settings
+                        break;
+                    case 31://case 31
+                        pin31_setting = setting;//safe settings in pin settings
+                        break;
+                }
+            }
+        }
+        else if(strcmp(commad2, "SET\0") == 0)//Check if command 2 is SET
+        {
+#ifdef DEBUGG//if debugg is defined putout the message
+            UARTSendArray("Entering Port Conf SET\r\n");
+#endif
+            config_specialPins(pin28_setting, pin29_setting, pin30_setting, pin31_setting);//configure specialpins
+            UARTSendArray("Configuration Finished\r\n");
+        }
+}
+
+
+//#################################################################
+//Setting Outputpins High or Low
+void command_PORTSET(char commad2[buflen_cmd], char commad3[buflen_cmd])
+{
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("Entering PORT SET\r\n");
+#endif
+        unsigned char pinnumber = 0;
+        unsigned char pinckeck = 0;
+        pinnumber = atoi(commad2);//coping number from command 2
+        if(pinnumber >= 28 && pinnumber <= 31)//check if number is between 28 and 31
+        {
+            switch(pinnumber)
+            {
+                case 28:
+                    pinckeck = pin28_setting;//safe settings in pin settings
+                    break;
+                case 29:
+                    pinckeck = pin29_setting;//safe settings in pin settings
+                    break;
+                case 30:
+                    pinckeck = pin30_setting;//safe settings in pin settings
+                    break;
+                case 31:
+                    pinckeck = pin31_setting;//safe settings in pin settings
+                    break;
+            }
+            if(pinckeck == GPIO_OUTPUT)//check configuration of Pin
+            {
+                if(strcmp(commad3, "HIGH\0") == 0)//check if command 3 is HIGH
+                {
+                    UARTSendArray("Setting Pin HIGH\r\n");
+                    MAX7301_setPIN(pinnumber,ON);//set pin ON
+                }
+                if(strcmp(commad3, "LOW\0") == 0)//check if command 3 is LOW
+                {
+                    UARTSendArray("Setting Pin LOW\r\n");
+                    MAX7301_setPIN(pinnumber,OFF);//set pin OFF
+                }
+
+            }
+        }
+}
+
+//#################################################################
+//_________________________________Reading Input pin status
+void command_PORTREAD(char commad2[buflen_cmd])
+{
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("Entering PORT READ\r\n");
+#endif
+    unsigned char pinnumber = 0;
+    unsigned char pinckeck = 0;
+    pinnumber = atoi(commad2);//coping number from command 2
+    if(pinnumber >= 28 && pinnumber <= 31)//check if number is between 28 and 31
+    {
+        switch(pinnumber)//Switch between 28 and 31
+        {
+            case 28:
+                if((pin28_setting == GPIO_INPUT) || (pin28_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
+                {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
+                    if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P28=ON\r\n");}else{UARTSendArray("P28=OFF\r\n");}
+                }
+                break;
+            case 29:
+                if((pin29_setting == GPIO_INPUT) || (pin29_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
+                {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
+                   if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P29=ON\r\n");}else{UARTSendArray("P29=OFF\r\n");}
+                }
+                break;
+            case 30:
+                if((pin30_setting == GPIO_INPUT) || (pin30_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
+                {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
+                    if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P30=ON\r\n");}else{UARTSendArray("P30=OFF\r\n");}
+                }
+                break;
+            case 31:
+                if((pin31_setting == GPIO_INPUT) || (pin31_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
+                {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
+                    if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P31=ON\r\n");}else{UARTSendArray("P31=OFF\r\n");}
+                }
+                break;
+        }
+    }
+}
 //#################################################################
 //______MAX7301_setPin sets pins for GPIO exbander
 void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_setIO(5,1)

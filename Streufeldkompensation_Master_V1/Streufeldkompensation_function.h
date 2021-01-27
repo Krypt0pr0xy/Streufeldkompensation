@@ -99,7 +99,11 @@ char SPIReceiv_Input_Max7301(unsigned char Pin);
 //#################################################################
 //______Command Decoder
 void CommandDecoder(char input_command[]);
-void command_SET(char channel[], char value[], char out[]);
+void command_SET(char channel[buflen_cmd], char value[buflen_cmd], char out[buflen_cmd]);
+void command_Help();
+void command_PORTCONFIGURE(char commad2[buflen_cmd], char commad3[buflen_cmd], char commad4[buflen_cmd]);
+void command_PORTSET(char commad2[buflen_cmd], char commad3[buflen_cmd]);
+void command_PORTREAD(char commad2[buflen_cmd]);
 
 //#################################################################
 //______MAX7301 GPIO expander
