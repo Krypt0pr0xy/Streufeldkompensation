@@ -610,6 +610,7 @@ void command_SET(char channel[buflen_cmd], char value[buflen_cmd], char out[bufl
     switch(CH)
     {
     case 1:
+        UARTSendArray("Test0\r\n");
         if(out_mode == 1)//check if mode is +/- 1V
         {
             MAX7301_setPIN(CH1_A0,OFF);
@@ -773,10 +774,10 @@ void command_Help()
 
     UARTSendArray("--------For Example to Setting Output Ports--------------\r\n");
 
-    UARTSendArray("PORTSET_31_HIGH_r\n");
+    UARTSendArray("PORTSET_31_HIGH_\r\n");
     UARTSendArray("     ^^^Setting Pin 31 High\r\n");
 
-    UARTSendArray("PORTSET_31_LOW_r\n");
+    UARTSendArray("PORTSET_31_LOW_\r\n");
     UARTSendArray("     ^^^Setting Pin 31 Low\r\n");
     UARTSendArray("#######################################################\r\n\r\n\r\n\r\n");
     UARTSendArray("--------For Example to Setting Output Ports--------------\r\n");
