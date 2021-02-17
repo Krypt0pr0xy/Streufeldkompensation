@@ -106,7 +106,13 @@ void config_SPI(void)
 }
 
 
-
+void config_ADC10()
+{
+    //Datasheet slau144 page 553
+    ADC10CTL0 = ADC10SHT_2 | ADC10ON;//Select Vref --> VR+ = VCC and VR- = VSS
+    ADC10CTL1 |= INCH_3;//Input channel selec --> A7
+    ADC10AE0 = 0x01;//ADC10 analog enable/disabled --> Analog input enabled
+}
 
 void check_interruptflag(void)
 {
@@ -124,6 +130,16 @@ void check_interruptflag(void)
             break;
     }
 
+    ADC10CTL0 |= ENC + ADC10SC;//Start ADC10 mesure
+    while(ADC10CTL1 & ADC10BUSY);//check if ADC10 is Busy
+
+    if(ADC10MEM < undervoltagelevel)//check voltage at ADC PIN
+    {//If a under voltage has detected the processor will do nothing
+        while(1)
+        {
+            delay_ms(100);//error state --> do nothing until restart
+        }
+    }
     interrupt_flag = 0;//reseting the flag
 }
 
@@ -147,7 +163,7 @@ __interrupt void Timer_A_CCR0_ISR(void)//Timer A Interupt every 1ms
 }
 
 
-void config__MAX7301(void)
+void config_MAX7301(void)
 {
     SPISendData_Max7301_2(0x04,0x81);//Start Config
     SPISendData_Max7301_2(0x06,0x00);//Input Mask Transition Register
@@ -242,6 +258,8 @@ void setup_MAX7301pins(void)
     MAX7301_setPIN(CH8_A0,OFF);
     MAX7301_setPIN(CH8_A1,OFF);
 
+    //MUX----------------------
+    MAX7301_setPIN(MUX_EN, OFF);
 }
 
 //#########################################################################################################################################################
@@ -256,7 +274,7 @@ void UARTSendArray(char array_to_send[])//send char array
         while(!(IFG2 & UCA0TXIFG));//Unload all data first from Buffer
         UCA0TXBUF = array_to_send[counter];//Take array at specific place
     }
-    //delay_ms(5);//Security feature
+
 }
 
 
@@ -358,7 +376,7 @@ unsigned char SPIReceiveByte()
     return(UCB0RXBUF); // Store received data
 }
 
-char SPIReceiv_Input_Max7301(unsigned char Pin)
+char SPIReceive_Input_Max7301(unsigned char Pin)
 {
     unsigned char temp = 0;
     unsigned char temp2 = 0;
@@ -914,7 +932,6 @@ void command_PORTREAD(char commad2[buflen_cmd])
         UARTSendArray("Entering PORT READ\r\n");
 #endif
     unsigned char pinnumber = 0;
-    unsigned char pinckeck = 0;
     pinnumber = atoi(commad2);//coping number from command 2
     if(pinnumber >= 28 && pinnumber <= 31)//check if number is between 28 and 31
     {
@@ -923,25 +940,25 @@ void command_PORTREAD(char commad2[buflen_cmd])
             case 28:
                 if((pin28_setting == GPIO_INPUT) || (pin28_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
                 {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
-                    if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P28=ON\r\n");}else{UARTSendArray("P28=OFF\r\n");}
+                    if(SPIReceive_Input_Max7301(pinnumber)){UARTSendArray("P28=ON\r\n");}else{UARTSendArray("P28=OFF\r\n");}
                 }
                 break;
             case 29:
                 if((pin29_setting == GPIO_INPUT) || (pin29_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
                 {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
-                   if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P29=ON\r\n");}else{UARTSendArray("P29=OFF\r\n");}
+                   if(SPIReceive_Input_Max7301(pinnumber)){UARTSendArray("P29=ON\r\n");}else{UARTSendArray("P29=OFF\r\n");}
                 }
                 break;
             case 30:
                 if((pin30_setting == GPIO_INPUT) || (pin30_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
                 {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
-                    if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P30=ON\r\n");}else{UARTSendArray("P30=OFF\r\n");}
+                    if(SPIReceive_Input_Max7301(pinnumber)){UARTSendArray("P30=ON\r\n");}else{UARTSendArray("P30=OFF\r\n");}
                 }
                 break;
             case 31:
                 if((pin31_setting == GPIO_INPUT) || (pin31_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
                 {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
-                    if(SPIReceiv_Input_Max7301(pinnumber)){UARTSendArray("P31=ON\r\n");}else{UARTSendArray("P31=OFF\r\n");}
+                    if(SPIReceive_Input_Max7301(pinnumber)){UARTSendArray("P31=ON\r\n");}else{UARTSendArray("P31=OFF\r\n");}
                 }
                 break;
         }

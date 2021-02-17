@@ -47,16 +47,27 @@ int main(void)
 	config_HW_UART();//configurate Harware UART set JUmper Correct!
 	config_standart_Ports();//configurate standart I/O
 	config_SPI();//setup SPI
-	config__MAX7301();//configurate Max7301 over SPI
+	config_ADC10();//configurate ADC10
+	config_MAX7301();//configurate Max7301 over SPI
+	config_specialPins(GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT);
 	setup_MAX7301pins();//configurate default Pins Max7301 over SPI
 	config_Timer();
+    command_SET("CH1","0.00","OUT1");
+    command_SET("CH2","0.00","OUT1");
+    command_SET("CH3","0.00","OUT1");
+    command_SET("CH4","0.00","OUT1");
+    command_SET("CH5","0.00","OUT1");
+    command_SET("CH6","0.00","OUT1");
+    command_SET("CH7","0.00","OUT1");
+    command_SET("CH8","0.00","OUT1");
+    MAX7301_setPIN(MUX_EN, ON);
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
 	UARTSendArray("****************************************************\r\n");
 
-	config_specialPins(GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT);
 
 	while(1)
 	{
+        delay_ms(100);
 	}
 
 }

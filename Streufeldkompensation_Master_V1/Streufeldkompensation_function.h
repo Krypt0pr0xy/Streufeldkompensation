@@ -37,6 +37,7 @@
 
 
 #define vref 4.096//Ref Voltage
+#define undervoltagelevel 0x308
 //#################################################################
 
 //______Name  Port Pin (MAX7301)
@@ -65,6 +66,7 @@
 #define CH8_CS 25
 #define CH8_A0 26
 #define CH8_A1 27
+#define MUX_EN 28
 
 //#################################################################
 //______Config_Function
@@ -73,12 +75,12 @@ void delay_ms(int ms);
 void config_standart_Ports(void);
 void config_HW_UART(void);
 void config_SPI(void);
-
+void config_ADC10(void);
 void check_interruptflag(void);
 void config_Timer(void);
 __interrupt void Timer_A_CCR0_ISR(void);
 
-void config__MAX7301(void);
+void config_MAX7301(void);
 void config_specialPins(unsigned char pin28_status, unsigned char pin29_status, unsigned char pin30_status, unsigned char pin31_status);
 void setup_MAX7301pins(void);
 //#################################################################
@@ -94,7 +96,7 @@ void SPISendData_Max7301_1(unsigned char input_Byte);
 void SPISendData_Max7301_2(unsigned char input_Byte1, unsigned char input_Byte2);
 void SPISendData_Max7301_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3);
 unsigned char SPIReceiveByte(void);
-char SPIReceiv_Input_Max7301(unsigned char Pin);
+char SPIReceive_Input_Max7301(unsigned char Pin);
 
 //#################################################################
 //______Command Decoder
