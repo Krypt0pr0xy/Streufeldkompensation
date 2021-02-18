@@ -11,6 +11,7 @@
 
 
 char interrupt_flag = 0;//Flag for interupts
+char flag_LED_DATA = 0;
 char status[buflen_status] = "";//Status buffer
 char input_data[buflen_input_data] = " ";//buffer for input
 char cmd_1[buflen_cmd] = "";//command 1 buffer
@@ -21,6 +22,7 @@ unsigned char pin28_setting = GPIO_INPUT;
 unsigned char pin29_setting = GPIO_INPUT;
 unsigned char pin30_setting = GPIO_INPUT;
 unsigned char pin31_setting = GPIO_INPUT;
+unsigned int LED_DATA_timer = 1000;
 //#########################################################################################################################################################
 //______________________________________________________________________Config_Function
 
@@ -51,9 +53,15 @@ void config_standart_Ports(void)
     P1OUT |= BIT4;
     P1DIR |= BIT4;
 
-    //chipselect P1.0 DAC
+    //LED_DATA
     P1OUT |= BIT0;
     P1DIR |= BIT0;
+
+    //P2.7 als normal GPIO
+    P2SEL &= ~(BIT7);
+    P2OUT |= BIT7;
+    P2DIR |= BIT7;
+
 }
 
 void config_HW_UART(void)
@@ -130,14 +138,31 @@ void check_interruptflag(void)
             break;
     }
 
+    if(flag_LED_DATA == 1)//check if LED_DATA flag ist On
+    {
+        LED_DATA_timer--;//decreas Timer
+        if(LED_DATA_timer <= 1)// if Timer is under 10
+        {//Reset LED_DATA
+            LED_DATA_Low;//setting LED_DATA Low
+            LED_DATA_timer = 1000;//Reset LED Timer
+            flag_LED_DATA = 0;//Reseting flag
+        }
+    }
+
+
     ADC10CTL0 |= ENC + ADC10SC;//Start ADC10 mesure
     while(ADC10CTL1 & ADC10BUSY);//check if ADC10 is Busy
 
     if(ADC10MEM < undervoltagelevel)//check voltage at ADC PIN
     {//If a under voltage has detected the processor will do nothing
+        //all Chanels off
+        MAX7301_setPIN(MUX_EN, OFF);
         while(1)
         {
-            delay_ms(100);//error state --> do nothing until restart
+            delay_ms(300);//Blinking TIME
+            LED_FAIL_High;
+            delay_ms(300);//Blinking TIME
+            LED_FAIL_Low;
         }
     }
     interrupt_flag = 0;//reseting the flag
@@ -359,14 +384,12 @@ void SPISendData_Max7301_3(unsigned char input_Byte1, unsigned char input_Byte2,
 
 void SPISendData_Max5719_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3)
 {
-    CS_Max5719_Low;
     SPISendByte(input_Byte1);//Send first Byte
     __delay_cycles(8);//NOP
     SPISendByte(input_Byte2);//Send second Byte
     __delay_cycles(8);//NOP
     SPISendByte(input_Byte3);//Send third Byte
     __delay_cycles(20);//NOP
-    CS_Max5719_High;
     delay_ms(100);
 }
 
@@ -504,12 +527,16 @@ void CommandDecoder(char input_command[])
     //Check the SET Command and when true start command_set function
     if(strcmp(cmd_1, "SET\0") == 0)
     {
+        LED_DATA_High;
+        flag_LED_DATA = 1;
         command_SET(cmd_2, cmd_3, cmd_4);
     }
 
     //Check the Help Commaand
     if(strcmp(cmd_1, "Help\0") == 0)
     {
+        LED_DATA_High;
+        flag_LED_DATA = 1;
         command_Help();
     }
 
@@ -518,18 +545,24 @@ void CommandDecoder(char input_command[])
     //Command for configure the ports
     if(strcmp(cmd_1, "PORTCONFIGURE\0") == 0)//Check if first command is PORTCONFIGURE
     {
+        LED_DATA_High;
+        flag_LED_DATA = 1;
         command_PORTCONFIGURE(cmd_2, cmd_3, cmd_4);
     }
 //______________________________________________________________________________________________________
         //Command for setting the Port
     if(strcmp(cmd_1, "PORTSET\0") == 0)//Check if command 1 is PORTSET
     {
+        LED_DATA_High;
+        flag_LED_DATA = 1;
         command_PORTSET(cmd_2, cmd_3);
     }
 
 
     if(strcmp(cmd_1, "PORTREAD\0") == 0)//Check if command 1 is PORTREAD
     {
+        LED_DATA_High;
+        flag_LED_DATA = 1;
         command_PORTREAD(cmd_2);
     }
 //-------------------------------------------------------------------------------------------------------
@@ -628,7 +661,6 @@ void command_SET(char channel[buflen_cmd], char value[buflen_cmd], char out[bufl
     switch(CH)
     {
     case 1:
-        UARTSendArray("Test0\r\n");
         if(out_mode == 1)//check if mode is +/- 1V
         {
             MAX7301_setPIN(CH1_A0,OFF);

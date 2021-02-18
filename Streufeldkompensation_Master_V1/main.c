@@ -19,10 +19,10 @@ P2.2/TA1.1                                          10|        |11
 
           __________
 DVCC    1 | MSP430 |20  DVSS
-CS ADC  2 |        |19
-UART RX 3 |        |18
+LEDDATA 2 |        |19
+UART RX 3 |        |18 LED Fail
 UART TX 4 |        |17
-        5 |        |16
+ADC     5 |        |16
 CS GPIO 6 |        |15  SPI MOSI
 SPI CLK 7 |        |14  SPI MISO
         8 |        |13

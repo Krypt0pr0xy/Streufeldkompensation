@@ -16,12 +16,14 @@
 #define true 1
 #define false 0
 
-#define CS_Max7301_High (P1OUT |= (BIT4))//Setting th pin 1.4 High
-#define CS_Max7301_Low (P1OUT &= (~BIT4))//Setting th pin 1.4 Low
+#define CS_Max7301_High (P1OUT |= (BIT4))//Setting the pin 1.4 High
+#define CS_Max7301_Low (P1OUT &= (~BIT4))//Setting the pin 1.4 Low
 
+#define LED_FAIL_High (P2OUT |= (BIT7))//Setting the pin 2.7 High
+#define LED_FAIL_Low (P2OUT &= (~BIT7))//Setting the pin 2.7 Low
 
-#define CS_Max5719_High (P1OUT |= (BIT0))//Setting th pin 1.0 High
-#define CS_Max5719_Low (P1OUT &= (~BIT0))//Setting th pin 1.0 Low
+#define LED_DATA_High (P1OUT |= (BIT0))//Setting the pin 1.0 High
+#define LED_DATA_Low (P1OUT &= (~BIT0))//Setting the pin 1.0 Low
 
 #define GPIO_OUTPUT 0x01//MAX7301 setting for Output Datasheet Page 6
 #define GPIO_INPUT  0x02//MAX7301 setting for Input Datasheet Page 6
