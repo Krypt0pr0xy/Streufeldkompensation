@@ -39,36 +39,64 @@
 
 
 #define vref 4.096//Ref Voltage
-#define undervoltagelevel 0x308
+
+#define undervoltagelevel 0x2EE
+
 //#################################################################
 
 //______Name  Port Pin (MAX7301)
 //  Portname to Pin Name
-#define CH1_CS 4
-#define CH1_A0 5
-#define CH1_A1 6
-#define CH2_CS 7
-#define CH2_A0 8
-#define CH2_A1 9
-#define CH3_CS 10
-#define CH3_A0 11
-#define CH3_A1 12
-#define CH4_CS 13
-#define CH4_A0 14
-#define CH4_A1 15
-#define CH5_CS 16
-#define CH5_A0 17
-#define CH5_A1 18
-#define CH6_CS 19
-#define CH6_A0 20
-#define CH6_A1 21
-#define CH7_CS 22
-#define CH7_A0 23
-#define CH7_A1 24
-#define CH8_CS 25
-#define CH8_A0 26
-#define CH8_A1 27
-#define MUX_EN 28
+//#define CH1_CS 4
+//#define CH1_A0 5
+//#define CH1_A1 6
+//#define CH2_CS 7
+//#define CH2_A0 8
+//#define CH2_A1 9
+//#define CH3_CS 10
+//#define CH3_A0 11
+//#define CH3_A1 12
+//#define CH4_CS 13
+//#define CH4_A0 14
+//#define CH4_A1 15
+//#define CH5_CS 16
+//#define CH5_A0 17
+//#define CH5_A1 18
+//#define CH6_CS 19
+//#define CH6_A0 20
+//#define CH6_A1 21
+//#define CH7_CS 22
+//#define CH7_A0 23
+//#define CH7_A1 24
+//#define CH8_CS 25
+//#define CH8_A0 26
+//#define CH8_A1 27
+//#define MUX_EN 28
+
+#define CH1_CS 8
+#define CH1_A0 12
+#define CH1_A1 9
+#define CH2_CS 13
+#define CH2_A0 10
+#define CH2_A1 14
+#define CH3_CS 11
+#define CH3_A0 15
+#define CH3_A1 16
+#define CH4_CS 17
+#define CH4_A0 18
+#define CH4_A1 19
+#define CH5_CS 20
+#define CH5_A0 21
+#define CH5_A1 22
+#define CH6_CS 23
+#define CH6_A0 24
+#define CH6_A1 25
+#define CH7_CS 26
+#define CH7_A0 27
+#define CH7_A1 28
+#define CH8_CS 7
+#define CH8_A0 29
+#define CH8_A1 6
+#define MUX_EN 30
 
 //#################################################################
 //______Config_Function
