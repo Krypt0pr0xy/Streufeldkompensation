@@ -40,7 +40,7 @@
 
 #define vref 4.096//Ref Voltage
 
-#define undervoltagelevel 0x2EE
+#define undervoltagelevel 0x2F0
 
 //#################################################################
 

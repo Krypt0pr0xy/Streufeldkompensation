@@ -62,6 +62,10 @@ void config_standart_Ports(void)
     P2OUT |= BIT7;
     P2DIR |= BIT7;
 
+    P1OUT &= ~(BIT3);
+    P1DIR |= BIT3;
+
+
 }
 
 void config_HW_UART(void)
@@ -116,10 +120,12 @@ void config_SPI(void)
 
 void config_ADC10()
 {
+    P1DIR &= ~(BIT3);
     //Datasheet slau144 page 553
-    ADC10CTL0 = ADC10SHT_2 | ADC10ON;//Select Vref --> VR+ = VCC and VR- = VSS
-    ADC10CTL1 |= INCH_3;//Input channel selec --> A7
-    ADC10AE0 = 0x01;//ADC10 analog enable/disabled --> Analog input enabled
+    ADC10CTL1 |= INCH_3 + ADC10DIV_3;//Input channel select --> A3
+    ADC10CTL0 |= ADC10SHT_2 + ADC10ON;//Select Vref --> VR+ = VCC and VR- = VSS
+
+
 }
 
 void check_interruptflag(void)
@@ -138,7 +144,7 @@ void check_interruptflag(void)
             break;
     }
 
-    if(flag_LED_DATA == 1)//check if LED_DATA flag ist On
+    if(flag_LED_DATA == 1)//check if LED_DATA flag is On
     {
         LED_DATA_timer--;//decreas Timer
         if(LED_DATA_timer <= 1)// if Timer is under 10
@@ -223,7 +229,9 @@ void config_MAX7301(void)
     SPISendData_Max7301_2(0x0D, 0x55);//P20-P23 as Output
     SPISendData_Max7301_2(0x0E, 0x55);//P24-P27 as Output
 
-    SPISendData_Max7301_2(0x0F, 0xAA);//P28-P31 as Input
+
+    SPISendData_Max7301_2(0x0F, 0x55);//P28-P31 as Input
+    //SPISendData_Max7301_2(0x0F, 0xAA);//P28-P31 as Input
 
     SPISendData_Max7301_2(0x04, 0x01);//Normal operation
 }
@@ -240,7 +248,7 @@ void config_specialPins(unsigned char pin28_status, unsigned char pin29_status, 
     SPISendData_Max7301_2(0x04,0x81);//Start Config
     SPISendData_Max7301_2(0x06,0x00);//Input Mask Transition Register
 
-    SPISendData_Max7301_2(0x0F, config);//P28-P31 as
+    SPISendData_Max7301_2(0x0F, config);//P28-P31 as config
 
     SPISendData_Max7301_2(0x04, 0x01);//Normal operation
 }

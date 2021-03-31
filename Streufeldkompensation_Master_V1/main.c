@@ -44,12 +44,14 @@ int main(void)
      WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
 	//all Config functions
 	config_CLK_1MHZ();//seting Clock to 1Mhz
-	config_HW_UART();//configurate Harware UART set JUmper Correct!
+	config_HW_UART();//configurate Harware UART set Jumper Correct!
 	config_standart_Ports();//configurate standart I/O
 	config_SPI();//setup SPI
 	config_ADC10();//configurate ADC10
+
+
 	config_MAX7301();//configurate Max7301 over SPI
-	config_specialPins(GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT);
+	//config_specialPins(GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT);
 	setup_MAX7301pins();//configurate default Pins Max7301 over SPI
 	config_Timer();
     command_SET("CH1","0.00","OUT1");
