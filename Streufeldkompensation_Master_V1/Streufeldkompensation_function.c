@@ -65,7 +65,6 @@ void config_standart_Ports(void)
     P1OUT &= ~(BIT3);
     P1DIR |= BIT3;
 
-
 }
 
 void config_HW_UART(void)

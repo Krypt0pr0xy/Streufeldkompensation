@@ -49,7 +49,6 @@ int main(void)
 	config_SPI();//setup SPI
 	config_ADC10();//configurate ADC10
 	LED_FAIL_High;
-	LED_DATA_High;
 	config_MAX7301();//configurate Max7301 over SPI
 	//config_specialPins(GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT);
 	setup_MAX7301pins();//configurate default Pins Max7301 over SPI
