@@ -1021,10 +1021,13 @@ void MAX7301_setPIN(unsigned char port_pin, unsigned char state)//e.g. MAX7301_s
 
 }
 
+
+
 //#################################################################
 //______set_VOltage_MAX5719 sets Voltage off DAC
 void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned char out_mode)//Only for symetric
 {
+
     if(out_mode == 1)
     {
         if((set_voltage > 1) || (set_voltage < -1))//check if Voltage input is in the range of vref
@@ -1049,60 +1052,113 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
     out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
 
 
-    //unsigned char byte3 = (out >> 24); //byte not used
-    unsigned char byte0 = (out >> 16);//last byte from the long value
-    unsigned char byte1 = (out >> 8);//middle byte from the long value
-    unsigned char byte2 = (out);//first byte from the long value
-
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-
+    unsigned char byte0 = 0;//last byte from the long value
+    unsigned char byte1 = 0;//middle byte from the long value
+    unsigned char byte2 = 0;//first byte from the long value
     //Sending MSP First last 4 Bits are ignored
     switch(channel)//Sending to the correct Channel
     {
     case 1:
         MAX7301_setPIN(CH1_CS,OFF);//CS off
+#ifdef CORRECTION
+        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+#endif
+        out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
+        byte0 = (out >> 16);//last byte from the long value
+        byte1 = (out >> 8);//middle byte from the long value
+        byte2 = (out);//first byte from the long value
         SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH1_CS,ON);//CS on
         break;
 
     case 2:
         MAX7301_setPIN(CH2_CS,OFF);//CS off
+#ifdef CORRECTION
+        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+#endif
+        out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
+        byte0 = (out >> 16);//last byte from the long value
+        byte1 = (out >> 8);//middle byte from the long value
+        byte2 = (out);//first byte from the long value
         SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH2_CS,ON);//CS on
         break;
 
     case 3:
         MAX7301_setPIN(CH3_CS,OFF);//CS off
+#ifdef CORRECTION
+        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+#endif
+        out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
+        byte0 = (out >> 16);//last byte from the long value
+        byte1 = (out >> 8);//middle byte from the long value
+        byte2 = (out);//first byte from the long value
         SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH3_CS,ON);//CS on
         break;
 
     case 4:
         MAX7301_setPIN(CH4_CS,OFF);//CS off
+#ifdef CORRECTION
+        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+#endif
+        out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
+        byte0 = (out >> 16);//last byte from the long value
+        byte1 = (out >> 8);//middle byte from the long value
+        byte2 = (out);//first byte from the long value
         SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH4_CS,ON);//CS on
         break;
 
     case 5:
         MAX7301_setPIN(CH5_CS,OFF);//CS off
+#ifdef CORRECTION
+        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+#endif
+        out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
+        byte0 = (out >> 16);//last byte from the long value
+        byte1 = (out >> 8);//middle byte from the long value
+        byte2 = (out);//first byte from the long value
         SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH5_CS,ON);//CS on
         break;
 
     case 6:
         MAX7301_setPIN(CH6_CS,OFF);//CS off
+#ifdef CORRECTION
+        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+#endif
+        out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
+        byte0 = (out >> 16);//last byte from the long value
+        byte1 = (out >> 8);//middle byte from the long value
+        byte2 = (out);//first byte from the long value
         SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH6_CS,ON);//CS on
         break;
 
     case 7:
         MAX7301_setPIN(CH7_CS,OFF);//CS off
+#ifdef CORRECTION
+        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+#endif
+        out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
+        byte0 = (out >> 16);//last byte from the long value
+        byte1 = (out >> 8);//middle byte from the long value
+        byte2 = (out);//first byte from the long value
         SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH7_CS,ON);//CS on
         break;
 
     case 8:
         MAX7301_setPIN(CH8_CS,OFF);//CS off
+#ifdef CORRECTION
+        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+#endif
+        out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
+        byte0 = (out >> 16);//last byte from the long value
+        byte1 = (out >> 8);//middle byte from the long value
+        byte2 = (out);//first byte from the long value
         SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH8_CS,ON);//CS on
         break;

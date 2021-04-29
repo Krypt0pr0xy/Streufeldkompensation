@@ -11,6 +11,8 @@
 
 //#define DEBUGG
 
+#define CORRECTION
+
 #define ON 1
 #define OFF 0
 #define true 1
@@ -41,6 +43,34 @@
 #define vref 4.096//Ref Voltage
 
 #define undervoltagelevel 0x2F0
+
+
+//Gain (A) setting -5 bis 5 in 0.5 schritten
+//
+#define CH1_AlphaA 0.998989557111688
+#define CH1_AlphaB 0.00088212555809558
+
+
+#define CH2_AlphaA 1
+#define CH2_AlphaB 0
+
+#define CH3_AlphaA 1
+#define CH3_AlphaB 0
+
+#define CH4_AlphaA 1
+#define CH4_AlphaB 0
+
+#define CH5_AlphaA 1
+#define CH5_AlphaB 0
+
+#define CH6_AlphaA 1
+#define CH6_AlphaB 0
+
+#define CH7_AlphaA 1
+#define CH7_AlphaB 0
+
+#define CH8_AlphaA 1
+#define CH8_AlphaB 0
 
 //#################################################################
 
