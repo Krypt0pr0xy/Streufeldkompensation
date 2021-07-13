@@ -47,8 +47,8 @@
 
 //Gain (A) setting -5 bis 5 in 0.5 schritten
 //
-#define CH1_AlphaA 0.998989557111688
-#define CH1_AlphaB 0.00088212555809558
+#define CH1_AlphaA 1
+#define CH1_AlphaB 0
 
 
 #define CH2_AlphaA 1
