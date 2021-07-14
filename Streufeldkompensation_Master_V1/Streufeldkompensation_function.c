@@ -18,6 +18,7 @@ char cmd_1[buflen_cmd] = "";//command 1 buffer
 char cmd_2[buflen_cmd] = "";//command 2 buffer
 char cmd_3[buflen_cmd] = "";//command 3 buffer
 char cmd_4[buflen_cmd] = "";//command 4 buffer
+char cmd_5[buflen_cmd] = "";//command 5 buffer
 unsigned char pin28_setting = GPIO_INPUT;
 unsigned char pin29_setting = GPIO_INPUT;
 unsigned char pin30_setting = GPIO_INPUT;
@@ -362,42 +363,42 @@ void SPISendData_Max7301_1(unsigned char input_Byte)//Send SPI Data with Chip Se
     SPISendByte(input_Byte);//Send first Byte
     __delay_cycles(20);//NOP
     CS_Max7301_High;
-    delay_ms(100);
+    //delay_ms(100);
 }
 
 void SPISendData_Max7301_2(unsigned char input_Byte1, unsigned char input_Byte2)//Send SPI Data with Chip Select an timing for 2 Byte
 {
     CS_Max7301_Low;
     SPISendByte(input_Byte1);//Send first Byte
-    __delay_cycles(8);//NOP
+    //__delay_cycles(8);//NOP
     SPISendByte(input_Byte2);//Send second Byte
     __delay_cycles(20);//NOP
     CS_Max7301_High;
-    delay_ms(100);
+    //delay_ms(100);
 }
 
 void SPISendData_Max7301_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3)//Send SPI Data with Chip Select an timing for 3 Byte
 {
     CS_Max7301_Low;
     SPISendByte(input_Byte1);//Send first Byte
-    __delay_cycles(8);//NOP
+    //__delay_cycles(8);//NOP
     SPISendByte(input_Byte2);//Send second Byte
-    __delay_cycles(20);//NOP
+    //__delay_cycles(20);//NOP
     SPISendByte(input_Byte3);//Send third Byte
     __delay_cycles(20);//NOP
     CS_Max7301_High;
-    delay_ms(100);
+    //delay_ms(100);
 }
 
 void SPISendData_Max5719_3(unsigned char input_Byte1, unsigned char input_Byte2, unsigned char input_Byte3)
 {
     SPISendByte(input_Byte1);//Send first Byte
-    __delay_cycles(8);//NOP
+    //__delay_cycles(8);//NOP
     SPISendByte(input_Byte2);//Send second Byte
-    __delay_cycles(8);//NOP
+    //__delay_cycles(8);//NOP
     SPISendByte(input_Byte3);//Send third Byte
     __delay_cycles(20);//NOP
-    delay_ms(100);
+    //delay_ms(100);
 }
 
 unsigned char SPIReceiveByte()
@@ -470,6 +471,7 @@ void CommandDecoder(char input_command[])
         cmd_2[clearCounter] = '\0';
         cmd_3[clearCounter] = '\0';
         cmd_4[clearCounter] = '\0';
+        cmd_5[clearCounter] = '\0';
     }
     unsigned char length = strlen(input_command);
     unsigned char counter = 0;
@@ -499,9 +501,16 @@ void CommandDecoder(char input_command[])
     }
 
     cmd_counter=0;//Reseting counter for out but array
-    for(counter = counter+1; (input_command[counter] != '\r') && (counter <= length); counter++)//Searching to Special Symbol
+    for(counter = counter+1; (input_command[counter] != COMMANDCHAR) && (counter <= length); counter++)//Searching to Special Symbol
     {
         cmd_4[cmd_counter] = input_command[counter];//Copy char to comand char
+        cmd_counter++;
+    }
+
+    cmd_counter=0;//Reseting counter for out but array
+    for(counter = counter+1; (input_command[counter] != '\r') && (counter <= length); counter++)//Searching to Special Symbol
+    {
+        cmd_5[cmd_counter] = input_command[counter];//Copy char to comand char
         cmd_counter++;
     }
 
@@ -510,7 +519,7 @@ void CommandDecoder(char input_command[])
     cmd_2[strlen(cmd_2)+1] = '\0';
     cmd_3[strlen(cmd_3)+1] = '\0';
     cmd_4[strlen(cmd_4)+1] = '\0';
-
+    cmd_5[strlen(cmd_4)+1] = '\0';
     //Sending the Information over UART back
 
 
@@ -527,6 +536,10 @@ void CommandDecoder(char input_command[])
         UARTSendArray("\r\n");
         UARTSendArray(" * Command 4: \t");
         UARTSendArray(cmd_4);
+        UARTSendArray("\r\n");
+        UARTSendArray(" * Command 5: \t");
+        UARTSendArray(cmd_5);
+
         UARTSendArray("\r\n\r\n");
         UARTSendArray("\r\n");
 #endif
@@ -536,10 +549,10 @@ void CommandDecoder(char input_command[])
     {
         LED_DATA_High;
         flag_LED_DATA = 1;
-        command_SET(cmd_2, cmd_3, cmd_4);
+        command_SET(cmd_2, cmd_3, cmd_4, cmd_5);
     }
 
-    //Check the Help Commaand
+    //Check the Help Command
     if(strcmp(cmd_1, "Help\0") == 0)
     {
         LED_DATA_High;
@@ -581,7 +594,7 @@ void CommandDecoder(char input_command[])
 
 //#########################################################################################################################################################
 //____________________________________________________________________________command functions
-void command_SET(char channel[buflen_cmd], char value[buflen_cmd], char out[buflen_cmd])
+void command_SET(char channel[buflen_cmd], char value[buflen_cmd], char out[buflen_cmd], char out_res[buflen_cmd])
 {
     /*Example for CH1 +/-10V 2.7k
      *
@@ -664,110 +677,147 @@ void command_SET(char channel[buflen_cmd], char value[buflen_cmd], char out[bufl
 
     set_Voltage_MAX5719(CH, vout, out_mode);
 
+    unsigned char A0_OUT10 = OFF;
+    unsigned char A1_OUT10 = OFF;
+
+    unsigned char A0_OUT1 = OFF;
+    unsigned char A1_OUT1 = ON;
+
+
+    if(strcmp(out_res, "Low") == 0)
+    {
+        A0_OUT10 = ON;
+        A1_OUT10 = OFF;
+        A0_OUT1 = ON;
+        A1_OUT1 = ON;
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("OUT RES Low");
+        UARTSendArray("\r\n");
+#endif
+    }
+    else if(strcmp(out_res, "High") == 0)
+    {
+        A0_OUT10 = OFF;
+        A1_OUT10 = OFF;
+        A0_OUT1 = OFF;
+        A1_OUT1 = ON;
+#ifdef DEBUGG//if debugg is defined putout the message
+        UARTSendArray("OUT RES High");
+        UARTSendArray("\r\n");
+#endif
+    }else
+    {
+        A0_OUT10 = OFF;
+        A1_OUT10 = OFF;
+        A0_OUT1 = OFF;
+        A1_OUT1 = ON;
+        UARTSendArray("Command 5 wrong, set Output Resistor to High");
+        UARTSendArray("\r\n");
+    }
     //setting A0 and A1
     switch(CH)
     {
     case 1:
         if(out_mode == 1)//check if mode is +/- 1V
         {
-            MAX7301_setPIN(CH1_A0,OFF);
-            MAX7301_setPIN(CH1_A1,ON);
+            MAX7301_setPIN(CH1_A0,A0_OUT1);
+            MAX7301_setPIN(CH1_A1,A1_OUT1);
         }
         else if(out_mode == 10)//check if mode is +/- 10V
         {
-            MAX7301_setPIN(CH1_A0,OFF);
-            MAX7301_setPIN(CH1_A1,OFF);
+            MAX7301_setPIN(CH1_A0,A0_OUT10);
+            MAX7301_setPIN(CH1_A1,A1_OUT10);
         }
         break;
 
     case 2:
         if(out_mode == 1)//check if mode is +/- 1V
         {
-            MAX7301_setPIN(CH2_A0,OFF);
-            MAX7301_setPIN(CH2_A1,ON);
+            MAX7301_setPIN(CH2_A0,A0_OUT1);
+            MAX7301_setPIN(CH2_A1,A1_OUT1);
         }
         else if(out_mode == 10)//check if mode is +/- 10V
         {
-            MAX7301_setPIN(CH2_A0,OFF);
-            MAX7301_setPIN(CH2_A1,OFF);
+            MAX7301_setPIN(CH2_A0,A0_OUT10);
+            MAX7301_setPIN(CH2_A1,A1_OUT10);
         }
         break;
 
     case 3:
         if(out_mode == 1)//check if mode is +/- 1V
         {
-            MAX7301_setPIN(CH3_A0,OFF);
-            MAX7301_setPIN(CH3_A1,ON);
+            MAX7301_setPIN(CH3_A0,A0_OUT1);
+            MAX7301_setPIN(CH3_A1,A1_OUT1);
         }
         else if(out_mode == 10)//check if mode is +/- 10V
         {
-            MAX7301_setPIN(CH3_A0,OFF);
-            MAX7301_setPIN(CH3_A1,OFF);
+            MAX7301_setPIN(CH3_A0,A0_OUT10);
+            MAX7301_setPIN(CH3_A1,A1_OUT10);
         }
         break;
 
     case 4:
         if(out_mode == 1)//check if mode is +/- 1V
         {
-            MAX7301_setPIN(CH4_A0,OFF);
-            MAX7301_setPIN(CH4_A1,ON);
+            MAX7301_setPIN(CH4_A0,A0_OUT1);
+            MAX7301_setPIN(CH4_A1,A1_OUT1);
         }
         else if(out_mode == 10)//check if mode is +/- 10V
         {
-            MAX7301_setPIN(CH4_A0,OFF);
-            MAX7301_setPIN(CH4_A1,OFF);
+            MAX7301_setPIN(CH4_A0,A0_OUT10);
+            MAX7301_setPIN(CH4_A1,A1_OUT10);
         }
         break;
 
     case 5:
         if(out_mode == 1)//check if mode is +/- 1V
         {
-            MAX7301_setPIN(CH5_A0,OFF);
-            MAX7301_setPIN(CH5_A1,ON);
+            MAX7301_setPIN(CH5_A0,A0_OUT1);
+            MAX7301_setPIN(CH5_A1,A1_OUT1);
         }
         else if(out_mode == 10)//check if mode is +/- 10V
         {
-            MAX7301_setPIN(CH5_A0,OFF);
-            MAX7301_setPIN(CH5_A1,OFF);
+            MAX7301_setPIN(CH5_A0,A0_OUT10);
+            MAX7301_setPIN(CH5_A1,A1_OUT10);
         }
         break;
 
     case 6:
         if(out_mode == 1)//check if mode is +/- 1V
         {
-            MAX7301_setPIN(CH6_A0,OFF);
-            MAX7301_setPIN(CH6_A1,ON);
+            MAX7301_setPIN(CH6_A0,A0_OUT1);
+            MAX7301_setPIN(CH6_A1,A1_OUT1);
         }
         else if(out_mode == 10)//check if mode is +/- 10V
         {
-            MAX7301_setPIN(CH6_A0,OFF);
-            MAX7301_setPIN(CH6_A1,OFF);
+            MAX7301_setPIN(CH6_A0,A0_OUT10);
+            MAX7301_setPIN(CH6_A1,A1_OUT10);
         }
         break;
 
     case 7:
         if(out_mode == 1)//check if mode is +/- 1V
         {
-            MAX7301_setPIN(CH7_A0,OFF);
-            MAX7301_setPIN(CH7_A1,ON);
+            MAX7301_setPIN(CH7_A0,A0_OUT1);
+            MAX7301_setPIN(CH7_A1,A1_OUT1);
         }
         else if(out_mode == 10)//check if mode is +/- 10V
         {
-            MAX7301_setPIN(CH7_A0,OFF);
-            MAX7301_setPIN(CH7_A1,OFF);
+            MAX7301_setPIN(CH7_A0,A0_OUT10);
+            MAX7301_setPIN(CH7_A1,A1_OUT10);
         }
         break;
 
     case 8:
         if(out_mode == 1)//check if mode is +/- 1V
         {
-            MAX7301_setPIN(CH8_A0,OFF);
-            MAX7301_setPIN(CH8_A1,ON);
+            MAX7301_setPIN(CH8_A0,A0_OUT1);
+            MAX7301_setPIN(CH8_A1,A1_OUT1);
         }
         else if(out_mode == 10)//check if mode is +/- 10V
         {
-            MAX7301_setPIN(CH8_A0,OFF);
-            MAX7301_setPIN(CH8_A1,OFF);
+            MAX7301_setPIN(CH8_A0,A0_OUT10);
+            MAX7301_setPIN(CH8_A1,A1_OUT10);
         }
         break;
     }

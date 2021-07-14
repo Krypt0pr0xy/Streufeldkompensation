@@ -4,7 +4,7 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROGRAM.MSP430G2553.ccxml.TI MSP430 USB1/MSP430" value="${build_artifact:Streufeldkompensation_Master_V1}"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.MSP430G2553.ccxml.TI MSP430 USB1/MSP430" value="Streufeldkompensation_Master_V1"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:Streufeldkompensation_Master_V1}"/>
-<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.MSP430G2553.ccxml.TI MSP430 USB1/MSP430" value="H:\git\Streufeldkompensation_Master_V1\Streufeldkompensation_Master_V1\Debug\Streufeldkompensation_Master_V1.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.MSP430G2553.ccxml.TI MSP430 USB1/MSP430" value="C:\Users\wyler\AppData\Roaming\SPB_Data\git\Streufeldkompensation\Streufeldkompensation_Master_V1\Debug\Streufeldkompensation_Master_V1.out"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/Streufeldkompensation_Master_V1"/>
 </listAttribute>

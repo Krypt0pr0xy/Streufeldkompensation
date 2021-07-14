@@ -9,7 +9,7 @@
 
 #endif /* STREUFELDKOMPENSATION_FUNCTION_H_ */
 
-//#define DEBUGG
+#define DEBUGG
 
 #define CORRECTION
 
@@ -42,7 +42,7 @@
 
 #define vref 4.096//Ref Voltage
 
-#define undervoltagelevel 0x2F0
+#define undervoltagelevel 0x2bc
 
 
 //Gain (A) setting -5 bis 5 in 0.5 schritten
@@ -161,7 +161,7 @@ char SPIReceive_Input_Max7301(unsigned char Pin);
 //#################################################################
 //______Command Decoder
 void CommandDecoder(char input_command[]);
-void command_SET(char channel[buflen_cmd], char value[buflen_cmd], char out[buflen_cmd]);
+void command_SET(char channel[buflen_cmd], char value[buflen_cmd], char out[buflen_cmd], char out_res[buflen_cmd]);
 void command_Help();
 void command_PORTCONFIGURE(char commad2[buflen_cmd], char commad3[buflen_cmd], char commad4[buflen_cmd]);
 void command_PORTSET(char commad2[buflen_cmd], char commad3[buflen_cmd]);
