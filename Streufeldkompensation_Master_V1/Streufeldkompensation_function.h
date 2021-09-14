@@ -9,7 +9,7 @@
 
 #endif /* STREUFELDKOMPENSATION_FUNCTION_H_ */
 
-#define DEBUGG
+//#define DEBUGG
 
 #define CORRECTION
 
@@ -47,61 +47,60 @@
 
 //Gain (A) setting -5 bis 5 in 0.5 schritten
 //
-#define CH1_AlphaA 1
-#define CH1_AlphaB 0
+
+#define CH1_AlphaA_10 1.000174351
+#define CH1_AlphaB_10 -0.000100681
+
+#define CH2_AlphaA_10 1.000169853
+#define CH2_AlphaB_10 -0.000107557
+
+#define CH3_AlphaA_10 0.999859126
+#define CH3_AlphaB_10 0.000158913
+
+#define CH4_AlphaA_10 0.999841679
+#define CH4_AlphaB_10 0.000047028
+
+#define CH5_AlphaA_10 1
+#define CH5_AlphaB_10 0
+
+#define CH6_AlphaA_10 1
+#define CH6_AlphaB_10 0
+
+#define CH7_AlphaA_10 1
+#define CH7_AlphaB_10 0
+
+#define CH8_AlphaA_10 1
+#define CH8_AlphaB_10 0
 
 
-#define CH2_AlphaA 1
-#define CH2_AlphaB 0
+#define CH1_AlphaA_1 1.000041922
+#define CH1_AlphaB_1 -0.000007225
 
-#define CH3_AlphaA 1
-#define CH3_AlphaB 0
+#define CH2_AlphaA_1 1.000066557
+#define CH2_AlphaB_1 -0.00001107
 
-#define CH4_AlphaA 1
-#define CH4_AlphaB 0
+#define CH3_AlphaA_1 0.999786366
+#define CH3_AlphaB_1 0.000010715
 
-#define CH5_AlphaA 1
-#define CH5_AlphaB 0
+#define CH4_AlphaA_1 0.999818204
+#define CH4_AlphaB_1 0.000001666
 
-#define CH6_AlphaA 1
-#define CH6_AlphaB 0
+#define CH5_AlphaA_1 1
+#define CH5_AlphaB_1 0
 
-#define CH7_AlphaA 1
-#define CH7_AlphaB 0
+#define CH6_AlphaA_1 1
+#define CH6_AlphaB_1 0
 
-#define CH8_AlphaA 1
-#define CH8_AlphaB 0
+#define CH7_AlphaA_1 1
+#define CH7_AlphaB_1 0
+
+#define CH8_AlphaA_1 1
+#define CH8_AlphaB_1 0
 
 //#################################################################
 
 //______Name  Port Pin (MAX7301)
 //  Portname to Pin Name
-//#define CH1_CS 4
-//#define CH1_A0 5
-//#define CH1_A1 6
-//#define CH2_CS 7
-//#define CH2_A0 8
-//#define CH2_A1 9
-//#define CH3_CS 10
-//#define CH3_A0 11
-//#define CH3_A1 12
-//#define CH4_CS 13
-//#define CH4_A0 14
-//#define CH4_A1 15
-//#define CH5_CS 16
-//#define CH5_A0 17
-//#define CH5_A1 18
-//#define CH6_CS 19
-//#define CH6_A0 20
-//#define CH6_A1 21
-//#define CH7_CS 22
-//#define CH7_A0 23
-//#define CH7_A1 24
-//#define CH8_CS 25
-//#define CH8_A0 26
-//#define CH8_A1 27
-//#define MUX_EN 28
-
 #define CH1_CS 8
 #define CH1_A0 12
 #define CH1_A1 9

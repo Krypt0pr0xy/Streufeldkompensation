@@ -850,7 +850,7 @@ void command_Help()
 {
     //Sending Example
     UARTSendArray("--------For Example to set Voltage--------------\r\n");
-    UARTSendArray("SET_CH1_2.5_OUT10\r\n");
+    UARTSendArray("SET_CH1_2.5_OUT10_Low\r\n");
     UARTSendArray("-------------------------------\r\n");
     UARTSendArray("SET\r\n");
     UARTSendArray("^^^_Command SET\r\n");
@@ -860,6 +860,8 @@ void command_Help()
     UARTSendArray("         ^^^_Select Output Voltage(-1v <-> +1V) or (-10v <-> +10V)\r\n");
     UARTSendArray("             OUT10\r\n");
     UARTSendArray("             ^^^_Select Output Stage 1 or 10 -> +/-1V or +/-10V \r\n");
+    UARTSendArray("                   Low \r\n");
+    UARTSendArray("                   ^^^_Select Output Resistor Low = 270 or High = 2.7k\r\n");
     UARTSendArray("#######################################################\r\n\r\n\r\n\r\n");
 
     UARTSendArray("--------For Example to Configure Ports--------------\r\n");
@@ -1034,7 +1036,7 @@ void command_PORTREAD(char commad2[buflen_cmd])
                 break;
             case 29:
                 if((pin29_setting == GPIO_INPUT) || (pin29_setting == GPIO_INPUT_with_PULLUP))//check configuration of Pin
-                {//If pin is active send information fo an active pin back if notsend information for an inactive pin back
+                {//If pin is active send information for an active pin back if notsend information for an inactive pin back
                    if(SPIReceive_Input_Max7301(pinnumber)){UARTSendArray("P29=ON\r\n");}else{UARTSendArray("P29=OFF\r\n");}
                 }
                 break;
@@ -1112,7 +1114,14 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
     case 1:
         MAX7301_setPIN(CH1_CS,OFF);//CS off
 #ifdef CORRECTION
-        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+        if(out_mode == 1)
+        {
+            set_voltage = ((set_voltage - CH1_AlphaB_1) / CH1_AlphaA_1);
+        }
+        else
+        {
+            set_voltage = ((set_voltage - CH1_AlphaB_10) / CH1_AlphaA_10);
+        }
 #endif
         out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
         byte0 = (out >> 16);//last byte from the long value
@@ -1125,7 +1134,14 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
     case 2:
         MAX7301_setPIN(CH2_CS,OFF);//CS off
 #ifdef CORRECTION
-        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+        if(out_mode == 1)
+        {
+            set_voltage = ((set_voltage - CH2_AlphaB_1) / CH2_AlphaA_1);
+        }
+        else
+        {
+            set_voltage = ((set_voltage - CH2_AlphaB_10) / CH2_AlphaA_10);
+        }
 #endif
         out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
         byte0 = (out >> 16);//last byte from the long value
@@ -1138,7 +1154,14 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
     case 3:
         MAX7301_setPIN(CH3_CS,OFF);//CS off
 #ifdef CORRECTION
-        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+        if(out_mode == 1)
+        {
+            set_voltage = ((set_voltage - CH3_AlphaB_1) / CH3_AlphaA_1);
+        }
+        else
+        {
+            set_voltage = ((set_voltage - CH3_AlphaB_10) / CH3_AlphaA_10);
+        }
 #endif
         out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
         byte0 = (out >> 16);//last byte from the long value
@@ -1151,7 +1174,14 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
     case 4:
         MAX7301_setPIN(CH4_CS,OFF);//CS off
 #ifdef CORRECTION
-        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+        if(out_mode == 1)
+        {
+            set_voltage = ((set_voltage - CH4_AlphaB_1) / CH4_AlphaA_1);
+        }
+        else
+        {
+            set_voltage = ((set_voltage - CH4_AlphaB_10) / CH4_AlphaA_10);
+        }
 #endif
         out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
         byte0 = (out >> 16);//last byte from the long value
@@ -1164,7 +1194,14 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
     case 5:
         MAX7301_setPIN(CH5_CS,OFF);//CS off
 #ifdef CORRECTION
-        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+        if(out_mode == 1)
+        {
+            set_voltage = ((set_voltage - CH5_AlphaB_1) / CH5_AlphaA_1);
+        }
+        else
+        {
+            set_voltage = ((set_voltage - CH5_AlphaB_10) / CH5_AlphaA_10);
+        }
 #endif
         out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
         byte0 = (out >> 16);//last byte from the long value
@@ -1177,7 +1214,14 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
     case 6:
         MAX7301_setPIN(CH6_CS,OFF);//CS off
 #ifdef CORRECTION
-        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+        if(out_mode == 1)
+        {
+            set_voltage = ((set_voltage - CH6_AlphaB_1) / CH6_AlphaA_1);
+        }
+        else
+        {
+            set_voltage = ((set_voltage - CH6_AlphaB_10) / CH6_AlphaA_10);
+        }
 #endif
         out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
         byte0 = (out >> 16);//last byte from the long value
@@ -1190,7 +1234,14 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
     case 7:
         MAX7301_setPIN(CH7_CS,OFF);//CS off
 #ifdef CORRECTION
-        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+        if(out_mode == 1)
+        {
+            set_voltage = ((set_voltage - CH7_AlphaB_1) / CH7_AlphaA_1);
+        }
+        else
+        {
+            set_voltage = ((set_voltage - CH7_AlphaB_10) / CH7_AlphaA_10);
+        }
 #endif
         out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
         byte0 = (out >> 16);//last byte from the long value
@@ -1203,7 +1254,14 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
     case 8:
         MAX7301_setPIN(CH8_CS,OFF);//CS off
 #ifdef CORRECTION
-        set_voltage = ((set_voltage - CH1_AlphaB) / CH1_AlphaA);
+        if(out_mode == 1)
+        {
+            set_voltage = ((set_voltage - CH8_AlphaB_1) / CH8_AlphaA_1);
+        }
+        else
+        {
+            set_voltage = ((set_voltage - CH8_AlphaB_10) / CH8_AlphaA_10);
+        }
 #endif
         out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
         byte0 = (out >> 16);//last byte from the long value
