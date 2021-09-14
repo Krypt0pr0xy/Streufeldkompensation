@@ -1102,7 +1102,6 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
     }
     unsigned long out = 0;
     out = (unsigned long)(((set_voltage)+4.096)*2048000); // calulating the Bit value
-
 //-----------------------------------------------------------------------------------------------------------------------------------------------
     unsigned char byte0 = 0;//last byte from the long value
     unsigned char byte1 = 0;//middle byte from the long value
