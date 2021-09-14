@@ -1108,7 +1108,6 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
     unsigned char byte2 = 0;//first byte from the long value
     //Sending MSP First last 4 Bits are ignored
 
-
     switch(channel)//Sending to the correct Channel
     {
     case 1:
