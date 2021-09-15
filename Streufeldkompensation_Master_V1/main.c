@@ -65,6 +65,7 @@ int main(void)
     LED_DATA_Low;
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
 	UARTSendArray("****************************************************\r\n");
+
 	while(1)
 	{
         delay_ms(100);
