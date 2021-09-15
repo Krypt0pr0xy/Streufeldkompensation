@@ -46,7 +46,7 @@
 
 
 //Gain (A) setting -10 bis 10 in 0.5 schritten
-
+//      +/- 10V
 #define CH1_AlphaA_10 1.0001088384669
 #define CH1_AlphaB_10 -0.000074437497073571
 
@@ -71,7 +71,7 @@
 #define CH8_AlphaA_10 1
 #define CH8_AlphaB_10 0
 
-
+//      +/-1V
 #define CH1_AlphaA_1 0.999967053101045
 #define CH1_AlphaB_1 -0.00000481405541466135
 

@@ -4,7 +4,6 @@
  * ETH Zürich Hönggerberg 10.11.2020
  */
 
-
 #include <msp430.h>
 #include "Streufeldkompensation_function.h"
 #include <string.h>
