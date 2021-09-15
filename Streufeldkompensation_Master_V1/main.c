@@ -66,6 +66,7 @@ int main(void)
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
 	UARTSendArray("****************************************************\r\n");
 
+
 	while(1)
 	{
         delay_ms(100);
