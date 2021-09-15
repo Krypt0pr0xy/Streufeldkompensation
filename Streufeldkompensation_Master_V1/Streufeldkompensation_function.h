@@ -45,20 +45,19 @@
 #define undervoltagelevel 0x2bc
 
 
-//Gain (A) setting -5 bis 5 in 0.5 schritten
-//
+//Gain (A) setting -10 bis 10 in 0.5 schritten
 
-#define CH1_AlphaA_10 1.000174351
-#define CH1_AlphaB_10 -0.000100681
+#define CH1_AlphaA_10 1.0001088384669
+#define CH1_AlphaB_10 -0.000074437497073571
 
-#define CH2_AlphaA_10 1.000169853
-#define CH2_AlphaB_10 -0.000107557
+#define CH2_AlphaA_10 1.00006678236934
+#define CH2_AlphaB_10 -0.000102876570730844
 
-#define CH3_AlphaA_10 0.999859126
-#define CH3_AlphaB_10 0.000158913
+#define CH3_AlphaA_10 0.999930388745645
+#define CH3_AlphaB_10 0.000192725953658485
 
-#define CH4_AlphaA_10 0.999841679
-#define CH4_AlphaB_10 0.000047028
+#define CH4_AlphaA_10 0.999968902926829
+#define CH4_AlphaB_10 0.0000795440404880362
 
 #define CH5_AlphaA_10 1
 #define CH5_AlphaB_10 0
@@ -73,17 +72,17 @@
 #define CH8_AlphaB_10 0
 
 
-#define CH1_AlphaA_1 1.000041922
-#define CH1_AlphaB_1 -0.000007225
+#define CH1_AlphaA_1 0.999967053101045
+#define CH1_AlphaB_1 -0.00000481405541466135
 
-#define CH2_AlphaA_1 1.000066557
-#define CH2_AlphaB_1 -0.00001107
+#define CH2_AlphaA_1 0.999953392473868
+#define CH2_AlphaB_1 -0.0000102498604878234
 
-#define CH3_AlphaA_1 0.999786366
-#define CH3_AlphaB_1 0.000010715
+#define CH3_AlphaA_1 0.999861222682927
+#define CH3_AlphaB_1 0.000016563681951194
 
-#define CH4_AlphaA_1 0.999818204
-#define CH4_AlphaB_1 0.000001666
+#define CH4_AlphaA_1 0.999933929581882
+#define CH4_AlphaB_1 0.00000790920397566669
 
 #define CH5_AlphaA_1 1
 #define CH5_AlphaB_1 0
