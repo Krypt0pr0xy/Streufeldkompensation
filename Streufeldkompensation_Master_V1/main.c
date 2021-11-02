@@ -35,7 +35,6 @@ SPI CLK 7 |        |14  SPI MISO
 //_____Header Files
 #include <msp430.h> 
 #include "Streufeldkompensation_function.h"
-
 //#################################################################
 //______Main_Function
 int main(void)
