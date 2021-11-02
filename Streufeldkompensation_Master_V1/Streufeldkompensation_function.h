@@ -125,7 +125,6 @@
 #define CH8_A0 29
 #define CH8_A1 6
 #define MUX_EN 30
-
 //#################################################################
 //______Config_Function
 void config_CLK_1MHZ(void);

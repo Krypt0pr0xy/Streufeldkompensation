@@ -9,7 +9,6 @@
 #include "Streufeldkompensation_function.h"
 #include <string.h>
 
-
 char interrupt_flag = 0;//Flag for interupts
 char flag_LED_DATA = 0;
 char status[buflen_status] = "";//Status buffer
