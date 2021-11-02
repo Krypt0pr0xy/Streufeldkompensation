@@ -51,17 +51,17 @@ int main(void)
 	//config_specialPins(GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT, GPIO_OUTPUT);
 	setup_MAX7301pins();//configurate default Pins Max7301 over SPI
 	config_Timer();
-    command_SET("CH1","0.00","OUT1","High");
-    command_SET("CH2","0.00","OUT1","High");
-    command_SET("CH3","0.00","OUT1","High");
-    command_SET("CH4","0.00","OUT1","High");
-    command_SET("CH5","0.00","OUT1","High");
-    command_SET("CH6","0.00","OUT1","High");
-    command_SET("CH7","0.00","OUT1","High");
-    command_SET("CH8","0.00","OUT1","High");
-    MAX7301_setPIN(MUX_EN, ON);
-    LED_FAIL_Low;
-    LED_DATA_Low;
+	command_SET("CH1","0.00","OUT1","High");
+	command_SET("CH2","0.00","OUT1","High");
+	command_SET("CH3","0.00","OUT1","High");
+	command_SET("CH4","0.00","OUT1","High");
+	command_SET("CH5","0.00","OUT1","High");
+	command_SET("CH6","0.00","OUT1","High");
+	command_SET("CH7","0.00","OUT1","High");
+	command_SET("CH8","0.00","OUT1","High");
+	MAX7301_setPIN(MUX_EN, ON);
+	LED_FAIL_Low;
+	LED_DATA_Low;
 	UARTSendArray("\r\n\r\nMSP430 Streufeldkompensation Started\r\n");
 	UARTSendArray("****************************************************\r\n");
 
