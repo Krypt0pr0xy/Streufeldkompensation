@@ -4,6 +4,7 @@
  * ETH Zürich Hönggerberg 10.11.2020
  */
 
+
 #include <msp430.h>
 #include "Streufeldkompensation_function.h"
 #include <string.h>
@@ -1132,6 +1133,7 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
         MAX7301_setPIN(CH2_CS,OFF);//CS off
 #ifdef CORRECTION
         if(out_mode == 1)
+
         {
             set_voltage = ((set_voltage - CH2_AlphaB_1) / CH2_AlphaA_1);
         }
