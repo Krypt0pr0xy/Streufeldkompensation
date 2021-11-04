@@ -3,8 +3,9 @@
 ## Instalation
 
 Streufeldkompensation CCS 10.1.0
-Wenn man die Software installiert hat kann man das Projekt in Code Composer Studio importieren. 
-Open Projects from File System
+Once you have installed the software, you can import the project into Code Composer Studio. 
+***
+1. Open Projects from File System
 -->Datei Pfad eingeben und auf Finish Drücken.
 ![image](https://user-images.githubusercontent.com/45595553/107525832-83d69f00-6bb7-11eb-93b5-e78175cd46eb.png)
 
