@@ -969,7 +969,6 @@ void command_PORTCONFIGURE(char commad2[buflen_cmd], char commad3[buflen_cmd], c
         }
 }
 
-
 //#################################################################
 //Setting Outputpins High or Low
 void command_PORTSET(char commad2[buflen_cmd], char commad3[buflen_cmd])
