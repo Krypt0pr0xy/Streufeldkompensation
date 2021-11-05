@@ -15,7 +15,7 @@ Once you have installed the software, you can import the project into Code Compo
 ***
 In case of complications when compiling the code, you should check the compiler settings. In the Project Explorer select your project and right click. Then click at the bottom on Probiertes
 
-## Die Einstellungen sollten Gleich sein. Die Wichtigsten Einstellungen sind:
+## The settings should be the same. The most important settings are:
 
 •	Device Variant: MSP430G2553
 
