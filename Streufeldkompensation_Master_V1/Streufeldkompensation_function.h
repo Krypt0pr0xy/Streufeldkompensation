@@ -5,13 +5,14 @@
  */
 
 
+
 #ifndef STREUFELDKOMPENSATION_FUNCTION_H_
 #define STREUFELDKOMPENSATION_FUNCTION_H_
 
 #endif /* STREUFELDKOMPENSATION_FUNCTION_H_ */
 //#define DEBUGG
 
-//#define CORRECTION
+#define CORRECTION
 
 #define ON 1
 #define OFF 0

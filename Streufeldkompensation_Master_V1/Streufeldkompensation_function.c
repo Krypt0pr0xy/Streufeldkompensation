@@ -1268,7 +1268,6 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
         SPISendData_Max5719_3(byte0, byte1, byte2);//send Data over SPI
         MAX7301_setPIN(CH8_CS,ON);//CS on
         break;
-
     }
 
 }
