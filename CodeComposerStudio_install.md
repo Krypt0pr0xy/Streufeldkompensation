@@ -9,7 +9,7 @@ I have tested it with the version 10.
 + In the Setup Type menu it becomes very important: 
 ![Image][2] 
 ## Choose Costum Installation 
-In the new Window: ![Image][3]
+In the new Window: ![Image][3] \
 Choose `MSP430 ultra low power MCUs`
 
 ## This was the most important thing, the rest should be done in the standard install setup.
