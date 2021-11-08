@@ -567,8 +567,8 @@ void CommandDecoder(char input_command[])
         flag_LED_DATA = 1;
         command_PORTCONFIGURE(cmd_2, cmd_3, cmd_4);
     }
-//______________________________________________________________________________________________________
-        //Command for setting the Port
+    //______________________________________________________________________________________________________
+    //Command for setting the Port
     if(strcmp(cmd_1, "PORTSET\0") == 0)//Check if command 1 is PORTSET
     {
         LED_DATA_High;
@@ -583,7 +583,7 @@ void CommandDecoder(char input_command[])
         flag_LED_DATA = 1;
         command_PORTREAD(cmd_2);
     }
-//-------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------------
 #ifdef DEBUGG//if debugg is defined putout the message
         UARTSendArray("CommandDecoder: End");
         UARTSendArray("\r\n");
@@ -605,7 +605,7 @@ void command_SET(char channel[buflen_cmd], char value[buflen_cmd], char out[bufl
         UARTSendArray("command_SET: Start");
         UARTSendArray("\r\n");
 #endif
-//_____________________________________________________________________________
+    //_____________________________________________________________________________
     //Extracting the Voltage
 
     char input[20] = "";//input buffer
@@ -651,7 +651,7 @@ void command_SET(char channel[buflen_cmd], char value[buflen_cmd], char out[bufl
 
     if(offset > 0){vout *= (-1);}//multiplying with -1 when the value should be negativ
 
-//_____________________________________________________________________________________________
+    //_____________________________________________________________________________________________
 
     //Getting the string Value to an float Variable
     unsigned char CH = 0;

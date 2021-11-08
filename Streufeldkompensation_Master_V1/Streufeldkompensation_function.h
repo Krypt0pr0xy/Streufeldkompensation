@@ -46,54 +46,54 @@
 
 //Gain (A) setting -10 bis 10 in 0.5 schritten
 //      +/- 10V
-#define CH1_AlphaA_10 1.0001088384669
-#define CH1_AlphaB_10 -0.000074437497073571
+#define CH1_AlphaA_10 0.999994758850174
+#define CH1_AlphaB_10 -0.000223761229268582
 
-#define CH2_AlphaA_10 1.00006678236934
-#define CH2_AlphaB_10 -0.000102876570730844
+#define CH2_AlphaA_10 0.999903748327526
+#define CH2_AlphaB_10 0.0000836120582918874
 
-#define CH3_AlphaA_10 0.999930388745645
-#define CH3_AlphaB_10 0.000192725953658485
+#define CH3_AlphaA_10 0.999945071567944
+#define CH3_AlphaB_10 0.000314956402439566
 
-#define CH4_AlphaA_10 0.999968902926829
-#define CH4_AlphaB_10 0.0000795440404880362
+#define CH4_AlphaA_10 0.999859495783972
+#define CH4_AlphaB_10 0.000291157636585122
 
-#define CH5_AlphaA_10 1
-#define CH5_AlphaB_10 0
+#define CH5_AlphaA_10 0.999964084041812
+#define CH5_AlphaB_10 0.0000955275795108313
 
-#define CH6_AlphaA_10 1
-#define CH6_AlphaB_10 0
+#define CH6_AlphaA_10 0.999839055156794
+#define CH6_AlphaB_10 0.000193771558536222
 
-#define CH7_AlphaA_10 1
-#define CH7_AlphaB_10 0
+#define CH7_AlphaA_10 1.00002232554007
+#define CH7_AlphaB_10 -0.0000259281612201269
 
-#define CH8_AlphaA_10 1
-#define CH8_AlphaB_10 0
+#define CH8_AlphaA_10 0.999983354599303
+#define CH8_AlphaB_10 -0.0000831890451217259
 
-//      +/-1V
-#define CH1_AlphaA_1 0.999967053101045
-#define CH1_AlphaB_1 -0.00000481405541466135
+//      +/-1V 0.05 steps
+#define CH1_AlphaA_1 0.999561994006969
+#define CH1_AlphaB_1 -0.0000237973758537169
 
-#define CH2_AlphaA_1 0.999953392473868
-#define CH2_AlphaB_1 -0.0000102498604878234
+#define CH2_AlphaA_1 0.999624212891986
+#define CH2_AlphaB_1 0.00000698056697560258
 
-#define CH3_AlphaA_1 0.999861222682927
-#define CH3_AlphaB_1 0.000016563681951194
+#define CH3_AlphaA_1 0.99973741641115
+#define CH3_AlphaB_1 0.0000294150251219819
 
-#define CH4_AlphaA_1 0.999933929581882
-#define CH4_AlphaB_1 0.00000790920397566669
+#define CH4_AlphaA_1 0.99956674076655
+#define CH4_AlphaB_1 0.0000267672117072947
 
-#define CH5_AlphaA_1 1
-#define CH5_AlphaB_1 0
+#define CH5_AlphaA_1 0.99964253184669
+#define CH5_AlphaB_1 0.00000825862446343573
 
-#define CH6_AlphaA_1 1
-#define CH6_AlphaB_1 0
+#define CH6_AlphaA_1 0.999671863554007
+#define CH6_AlphaB_1 0.0000161272948779418
 
-#define CH7_AlphaA_1 1
-#define CH7_AlphaB_1 0
+#define CH7_AlphaA_1 0.999913015574913
+#define CH7_AlphaB_1 0.00000578664953669763
 
-#define CH8_AlphaA_1 1
-#define CH8_AlphaB_1 0
+#define CH8_AlphaA_1 0.999885240243903
+#define CH8_AlphaB_1 -0.0000107195109755916
 
 //#################################################################
 //
@@ -196,9 +196,9 @@ void set_Voltage_MAX5719(unsigned char channel, double set_voltage, unsigned cha
 
 
 
-//You have scrolled down to here so her is an Easter Egg
+//You have scrolled down to here so far, her is an Easter Egg
 //......................................................
 //
 //
 //                   2b | !2b
-//              That is the question here
+//            That is the question here
